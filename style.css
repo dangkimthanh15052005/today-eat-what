@@ -45,6 +45,31 @@ body {
 .app-header {
   text-align: center;
   margin-bottom: 28px;
+  position: relative;
+}
+
+.lang-toggle {
+  display: inline-flex;
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  padding: 2px;
+  margin-bottom: 10px;
+}
+
+.lang-btn {
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  padding: 5px 12px;
+  border-radius: 999px;
+}
+
+.lang-btn.is-active {
+  background: var(--primary-soft);
+  color: var(--primary-dark);
 }
 
 .brand {
