@@ -58,9 +58,8 @@ function extract(marker) {
     // const foo = {  /  const foo = [   -> đếm ngoặc bắt đầu từ chính ký tự cuối marker
     return scanBalanced(start, start + marker.length - 1);
   }
-  if (/^(async\s+)?function\b/.test(marker.trim())) {
-    // function foo(...) {...} / async function foo(...) {...} -> bỏ qua danh sách
-    // tham số, tìm dấu { đầu tiên rồi mới đếm (giữ nguyên "async" nếu marker có).
+  if (marker.trim().startsWith("function")) {
+    // function foo(...) {...} -> bỏ qua danh sách tham số, tìm dấu { đầu tiên rồi mới đếm
     let i = start;
     while (SRC[i] !== "{") i++;
     return scanBalanced(start, i);
@@ -95,7 +94,7 @@ function buildSandbox() {
       store[k] = String(v);
     }
   };
-  const sandbox = { localStorage, console, AbortController, setTimeout, clearTimeout, fetch: undefined };
+  const sandbox = { localStorage, console };
   vm.createContext(sandbox);
 
   // vm context: khai báo bằng `const`/`let` ở top-level KHÔNG gắn thành property của
@@ -128,7 +127,7 @@ function buildSandbox() {
     asVar(extract("const BLACKLIST_KEY =")),
     asVar(extract("const HISTORY_KEY =")),
     asVar(extract("const SESSION_KEY =")),
-    "var state = { lat:null, lon:null, locationLabel:null, radius:1000, meal:'auto', price:'any', categories:new Set(), spicyOnly:false, recentShown:[], currentFood:null, historyLoggedForName:null, province:null, district:null, hasFallback:false, matchedPlaces:[], otherPlaces:[], fallbackShown:false, lang:'vi' };",
+    "var state = { lat:null, lon:null, locationLabel:null, radius:1000, meal:'auto', price:'any', categories:new Set(), spicyOnly:false, recentShown:[], currentFood:null, confirmed:false, province:null, district:null, hasFallback:false, matchedPlaces:[], otherPlaces:[], fallbackShown:false, lang:'vi' };",
     extract("function t(key)"),
     extract("function tf(key,"),
     extract("function loadJSON("),
@@ -137,13 +136,6 @@ function buildSandbox() {
     extract("function pickFood("),
     extract("function weightedPick("),
     extract("function currentFoodMatchesFilters("),
-    extract("function getCtaAction("),
-    extract("function escapeHtml("),
-    extract("function shortAddressFallback("),
-    extract("function formatLocationLabel("),
-    asVar(extract("const OVERPASS_HOSTS = [")),
-    asVar(extract("const OVERPASS_TIMEOUT_MS =")),
-    extract("async function fetchOverpassRaw("),
     asVar(extract("const DAY_MAP =")),
     extract("function parseOpeningHours(")
   ].join("\n\n");
@@ -315,82 +307,4 @@ test("CATEGORY_LABELS: mọi category dùng trong FOODS đều có nhãn hiển 
   const missingEn = [...usedCats].filter((c) => !sb.CATEGORY_LABELS.en[c]);
   assert.strictEqual(missingVi.length, 0, `Category dùng trong FOODS nhưng thiếu nhãn vi: ${missingVi.join(", ")}`);
   assert.strictEqual(missingEn.length, 0, `Category dùng trong FOODS nhưng thiếu nhãn en: ${missingEn.join(", ")}`);
-});
-
-test("getCtaAction (CTA state machine): đúng theo 3 tổ hợp chưa có món / có món chưa có toạ độ / có món + có toạ độ", () => {
-  const sb = buildSandbox();
-
-  // Chưa random/chọn món nào -> CTA phải là "random"
-  sb.state.currentFood = null;
-  assert.strictEqual(sb.getCtaAction(), "suggest");
-
-  // Đã có món nhưng chưa có vị trí -> CTA phải mở sheet Vị trí trước, KHÔNG gọi
-  // tìm quán thẳng (đúng yêu cầu "tự mở sheet vị trí, không bắt bấm lần nữa" —
-  // hành vi auto-tìm khi có toạ độ nằm ở finalizeLocation, không phải ở đây).
-  sb.state.currentFood = sb.FOODS[0];
-  sb.state.lat = null;
-  sb.state.lon = null;
-  assert.strictEqual(sb.getCtaAction(), "openLocation");
-
-  // Đã có món VÀ đã có toạ độ -> CTA tìm quán luôn, không hỏi lại vị trí
-  sb.state.lat = 10.77;
-  sb.state.lon = 106.7;
-  assert.strictEqual(sb.getCtaAction(), "findNearby");
-
-  // Chỉ có toạ độ mà chưa có món -> vẫn phải là "suggest" (toạ độ không đủ để bỏ
-  // qua bước chọn món)
-  sb.state.currentFood = null;
-  assert.strictEqual(sb.getCtaAction(), "suggest");
-});
-
-test("formatLocationLabel: ghép từ object address có cấu trúc (road/suburb/city), KHÔNG lấy tên địa điểm/quán (bug Crystal báo: ra tên quán trà sữa)", () => {
-  const sb = buildSandbox();
-
-  // Trường hợp lỗi thật: Nominatim reverse ra display_name bắt đầu bằng tên quán
-  // vì GPS rơi đúng node POI — address object không có field "name"/"shop" nên
-  // hàm mới không bao giờ đọc nhầm tên quán vào, dù display_name có tên đó.
-  const addr1 = { road: "Đường Nguyễn Huệ", suburb: "Phường Bến Nghé", city: "Thành phố Hồ Chí Minh", shop: "Trà Sữa Bobapop" };
-  assert.strictEqual(sb.formatLocationLabel(addr1, "Trà Sữa Bobapop, 24, Đường Nguyễn Huệ, ..."), "Đường Nguyễn Huệ, Phường Bến Nghé");
-
-  // Không có road (vd toạ độ giữa khu dân cư nhỏ) -> lùi về suburb + city
-  const addr2 = { suburb: "Phường Bến Nghé", city: "Thành phố Hồ Chí Minh" };
-  assert.strictEqual(sb.formatLocationLabel(addr2, "..."), "Phường Bến Nghé, Thành phố Hồ Chí Minh");
-
-  // address rỗng hoàn toàn -> lùi về cắt thô display_name (fallback cuối, chấp
-  // nhận có thể dính tên địa điểm vì không còn field nào đáng tin hơn)
-  assert.strictEqual(sb.formatLocationLabel(null, "Một địa điểm nào đó, 12, Đường ABC, Quận X"), "Một địa điểm nào đó, 12");
-
-  // address rỗng VÀ không có display_name -> vẫn phải trả về chuỗi gì đó, không throw/undefined
-  assert.strictEqual(sb.formatLocationLabel(null, null), sb.t("currentLocationFallback"));
-});
-
-test("fetchOverpassRaw: host đầu lỗi/timeout thì tự chuyển sang host tiếp theo, chỉ throw khi CẢ 2 đều lỗi", async () => {
-  const sb = buildSandbox();
-
-  // Host 1 (overpass-api.de) fail, host 2 (kumi.systems) trả kết quả tốt
-  let callLog = [];
-  sb.fetch = async (url) => {
-    callLog.push(url);
-    if (url.includes("overpass-api.de")) {
-      return { ok: false, status: 504, json: async () => ({}) };
-    }
-    return { ok: true, json: async () => ({ elements: [{ id: 1, lat: 10, lon: 106 }] }) };
-  };
-  const result = await sb.fetchOverpassRaw("fake-query");
-  assert.deepStrictEqual(result.map((e) => e.id), [1]);
-  assert.strictEqual(callLog.length, 2, "Phải thử đúng 2 host (host 1 fail rồi mới sang host 2), không dừng sớm hay gọi thừa");
-  assert.ok(callLog[0].includes("overpass-api.de") && callLog[1].includes("kumi.systems"), "Phải thử theo đúng thứ tự host đã khai báo");
-
-  // Cả 2 host đều lỗi -> phải throw (để findNearby() hiện được thông báo lỗi +
-  // nút Thử lại, không im lặng trả rỗng khiến tưởng nhầm là 0 quán)
-  sb.fetch = async () => ({ ok: false, status: 500, json: async () => ({}) });
-  await assert.rejects(() => sb.fetchOverpassRaw("fake-query"));
-});
-
-test("escapeHtml: chặn HTML/script trong dữ liệu OSM (tên quán) trước khi nhét vào innerHTML", () => {
-  const sb = buildSandbox();
-  assert.strictEqual(sb.escapeHtml('<script>alert(1)</script>'), "&lt;script&gt;alert(1)&lt;/script&gt;");
-  assert.strictEqual(sb.escapeHtml(`Quán "Ngon" & Rẻ`), "Quán &quot;Ngon&quot; &amp; Rẻ");
-  assert.strictEqual(sb.escapeHtml(null), "", "Giá trị null/undefined phải ra chuỗi rỗng, không throw hay in ra chữ 'null'");
-  assert.strictEqual(sb.escapeHtml("Phở bò bình thường"), "Phở bò bình thường");
 });

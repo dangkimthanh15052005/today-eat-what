@@ -361,13 +361,6 @@ const STRINGS = {
     greetLunch: "🍚 Đến giờ ăn trưa rồi!",
     greetDinner: "🌙 Đến giờ ăn tối rồi!",
     greetLatenight: "🌃 Đói bụng khuya à?",
-    radiusLabel: "Bán kính",
-    categorySearchPlaceholder: "Tìm loại món…",
-    allCategories: "Tất cả loại",
-    noLocationYet: "📍 Chưa chọn vị trí",
-    findNearbyShort: "🔍 Tìm quán gần đây",
-    retryBtn: "🔄 Thử lại",
-    noPlacesAtAll: "😢 Không tìm thấy quán ăn nào gần bạn. Thử tăng bán kính hoặc đổi vị trí.",
     rerollBtn: "🎲 Gợi ý món khác",
     historyHeading: "Lịch sử món ăn",
     resultsHeading: "Quán gần bạn",
@@ -387,6 +380,7 @@ const STRINGS = {
     likeThis: "Thích món này",
     dontShowAgain: "Không gợi ý món này nữa",
     suggestBtn: "🎲 Chọn món cho tôi",
+    confirmBtn: "✅ Chọn món này",
     thinking: "Đang nghĩ...",
     geoNotSupported: "Trình duyệt không hỗ trợ định vị.",
     gettingLocation: "Đang lấy vị trí...",
@@ -451,13 +445,6 @@ const STRINGS = {
     greetLunch: "🍚 Time for lunch!",
     greetDinner: "🌙 Time for dinner!",
     greetLatenight: "🌃 Late-night cravings?",
-    radiusLabel: "Radius",
-    categorySearchPlaceholder: "Search category…",
-    allCategories: "All categories",
-    noLocationYet: "📍 No location set",
-    findNearbyShort: "🔍 Find nearby",
-    retryBtn: "🔄 Retry",
-    noPlacesAtAll: "😢 No restaurants found near you. Try a wider radius or a different location.",
     rerollBtn: "🎲 Suggest another",
     historyHeading: "Food history",
     resultsHeading: "Places near you",
@@ -477,6 +464,7 @@ const STRINGS = {
     likeThis: "Like this",
     dontShowAgain: "Don't suggest this again",
     suggestBtn: "🎲 Pick something for me",
+    confirmBtn: "✅ Choose this",
     thinking: "Thinking...",
     geoNotSupported: "Your browser doesn't support geolocation.",
     gettingLocation: "Getting your location...",
@@ -512,7 +500,7 @@ const STRINGS_FN = {
     pickNotePrefix: (note) => `ℹ️ ${note[0].toUpperCase()}${note.slice(1)}.`,
     blacklistCount: (n) => `Đã ẩn ${n} món · `,
     resultsTitleFor: (name) => `Quán bán ${name} gần bạn`,
-    categoriesCount: (n) => `${n} loại`,
+    findNearbyBtn: (name) => `🔍 Xem quán ${name} gần bạn`,
     foundMatched: (n, name, radiusLabel) => `Tìm thấy ${n} quán có thể bán "${name}" trong bán kính ${radiusLabel}.`,
     noneMatched: (name, radiusLabel) => `Không tìm thấy quán "${name}" phù hợp trong bán kính ${radiusLabel}. Thử tăng bán kính ở thẻ "Vị trí", hoặc đổi món khác.`,
     openUntil: (hhmm) => `Đang mở · đóng lúc ${hhmm}`,
@@ -530,7 +518,7 @@ const STRINGS_FN = {
     pickNotePrefix: (note) => `ℹ️ ${note[0].toUpperCase()}${note.slice(1)}.`,
     blacklistCount: (n) => `${n} dish${n === 1 ? "" : "es"} hidden · `,
     resultsTitleFor: (name) => `Places serving ${name} near you`,
-    categoriesCount: (n) => `${n} categories`,
+    findNearbyBtn: (name) => `🔍 Find ${name} near you`,
     foundMatched: (n, name, radiusLabel) => `Found ${n} place${n === 1 ? "" : "s"} that may serve "${name}" within ${radiusLabel}.`,
     noneMatched: (name, radiusLabel) => `No place serving "${name}" found within ${radiusLabel}. Try a wider radius in "Location", or pick another dish.`,
     openUntil: (hhmm) => `Open now · closes ${hhmm}`,
@@ -542,10 +530,6 @@ const STRINGS_FN = {
 
 const PLACES_CACHE_KEY = "hnag_cache_v1";
 const PLACES_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
-/* Sau 6h coi là "cũ" nhưng vẫn dùng được tạm (trả về ngay + fetch nền âm thầm cập
-   nhật lại — stale-while-revalidate) tới tối đa 48h; quá mốc này bỏ hẳn, phải fetch
-   mới. Tránh tình huống Overpass đang bận (504) mà không còn gì để hiện tạm. */
-const PLACES_CACHE_MAX_AGE_MS = 48 * 60 * 60 * 1000;
 const IMG_CACHE_KEY = "hnag_img_cache_v1";
 const IMG_CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const FAVORITES_KEY = "hnag_favorites_v1";
@@ -565,7 +549,7 @@ const state = {
   sort: "relevant",
   recentShown: [],
   currentFood: null,
-  historyLoggedForName: null,
+  confirmed: false,
   province: null,
   district: null,
   hasFallback: false,
@@ -610,7 +594,6 @@ function applyLanguage() {
   renderHistory();
   updateBottomBar();
   updateLocationSummary();
-  updatePrefsSummary();
   refreshFoodCardText();
   updateMealGreeting();
   el.toggleListBtn.textContent = el.dishListPanel.hidden ? t("browseListBtn") : t("hideListBtn");
@@ -632,15 +615,10 @@ const el = {
   districtSelect: document.getElementById("districtSelect"),
   wardSelect: document.getElementById("wardSelect"),
   applyRegionBtn: document.getElementById("applyRegionBtn"),
-  locationSummaryBtn: document.getElementById("locationSummaryBtn"),
+  locationPicker: document.getElementById("locationPicker"),
+  locationSummary: document.getElementById("locationSummary"),
   locationSummaryText: document.getElementById("locationSummaryText"),
-  locationSheetBackdrop: document.getElementById("locationSheetBackdrop"),
-  closeLocationSheetBtn: document.getElementById("closeLocationSheetBtn"),
-  prefsSummaryBtn: document.getElementById("prefsSummaryBtn"),
-  prefsSummaryText: document.getElementById("prefsSummaryText"),
-  prefsSheetBackdrop: document.getElementById("prefsSheetBackdrop"),
-  closePrefsSheetBtn: document.getElementById("closePrefsSheetBtn"),
-  categorySearch: document.getElementById("categorySearch"),
+  changeLocationBtn: document.getElementById("changeLocationBtn"),
   radiusChips: document.getElementById("radiusChips"),
   mealChips: document.getElementById("mealChips"),
   priceChips: document.getElementById("priceChips"),
@@ -676,10 +654,6 @@ const el = {
   resultsList: document.getElementById("resultsList"),
   mapView: document.getElementById("mapView"),
   viewToggle: document.getElementById("viewToggle"),
-  resultsErrorBox: document.getElementById("resultsErrorBox"),
-  resultsErrorText: document.getElementById("resultsErrorText"),
-  errorRadiusChips: document.getElementById("errorRadiusChips"),
-  retryNearbyBtn: document.getElementById("retryNearbyBtn"),
   fallbackWrap: document.getElementById("fallbackWrap"),
   showAllBtn: document.getElementById("showAllBtn"),
   fallbackList: document.getElementById("fallbackList")
@@ -691,20 +665,6 @@ function normalizeVN(str) {
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "")
     .replace(/đ/g, "d");
-}
-
-// OSM là dữ liệu cộng đồng chỉnh sửa được (tên quán, địa chỉ...) nên phải escape
-// trước khi nhét vào innerHTML — tránh XSS nếu ai đó gắn HTML/script vào tag OSM.
-// Cố tình dùng chuỗi .replaceAll() thay vì regex ký tự (/[&<>"']/) — công cụ trích
-// hàm cho test-logic.js quét dấu ngoặc/dấu nháy đơn giản, không hiểu cú pháp regex
-// nên 1 dấu " hay ' nằm trong regex literal sẽ làm nó đếm lệch dấu nháy của cả file.
-function escapeHtml(str) {
-  return String(str ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
 }
 
 function debounce(fn, wait) {
@@ -853,55 +813,12 @@ function renderCategoryChips() {
       if (btn.classList.contains("is-active")) state.categories.add(btn.dataset.value);
       else state.categories.delete(btn.dataset.value);
       updateFilterFeasibility();
-      updatePrefsSummary();
       saveSession();
       refreshFoodIfFiltersChanged();
     });
   });
 }
 renderCategoryChips();
-
-/* Tóm tắt Bữa ăn/Ngân sách/Loại món thành 1 dòng ngắn trên thanh tóm tắt ngoài —
-   card "Sở thích" cũ giờ nằm trong sheet, không chiếm chỗ ở first fold nữa. */
-function updatePrefsSummary() {
-  if (!el.prefsSummaryText) return;
-  const mealText = state.meal === "auto" ? t("mealAuto") : MEAL_LABELS[state.lang][state.meal];
-  const priceText = PRICE_LABELS[state.lang][state.price];
-  let catText;
-  if (state.categories.size === 0) {
-    catText = t("allCategories");
-  } else if (state.categories.size === 1) {
-    catText = CATEGORY_LABELS[state.lang][[...state.categories][0]];
-  } else {
-    catText = tf("categoriesCount", state.categories.size);
-  }
-  el.prefsSummaryText.textContent = `${mealText} · ${priceText} · ${catText}`;
-}
-
-function openPrefsSheet() {
-  if (el.categorySearch) {
-    el.categorySearch.value = "";
-    el.categoryChips.querySelectorAll(".chip").forEach((btn) => { btn.hidden = false; });
-  }
-  el.prefsSheetBackdrop.hidden = false;
-}
-function closePrefsSheet() {
-  el.prefsSheetBackdrop.hidden = true;
-}
-el.prefsSummaryBtn.addEventListener("click", openPrefsSheet);
-el.closePrefsSheetBtn.addEventListener("click", closePrefsSheet);
-el.prefsSheetBackdrop.addEventListener("click", (e) => {
-  if (e.target === el.prefsSheetBackdrop) closePrefsSheet();
-});
-
-/* Lọc 19 chip Loại món theo tên đang gõ — không cần bịa thêm dữ liệu, chỉ ẩn/hiện
-   chip đã render sẵn (so khớp bỏ dấu để gõ không dấu vẫn tìm được). */
-el.categorySearch.addEventListener("input", (e) => {
-  const q = normalizeVN(e.target.value.trim());
-  el.categoryChips.querySelectorAll(".chip").forEach((btn) => {
-    btn.hidden = q.length > 0 && !normalizeVN(btn.textContent).includes(q);
-  });
-});
 
 /* Pool sau khi áp Loại món + Cay (2 bộ lọc "chủ động" — xem pickFood) — dùng để biết
    trước lựa chọn Bữa ăn/Ngân sách nào là bất khả thi, thay vì để chọn xong mới báo. */
@@ -1037,14 +954,12 @@ wireSingleChipGroup(el.mealChips, (value) => {
   state.meal = value;
   saveSession();
   updateMealGreeting();
-  updatePrefsSummary();
   refreshFoodIfFiltersChanged();
 });
 
 wireSingleChipGroup(el.priceChips, (value) => {
   state.price = value;
   saveSession();
-  updatePrefsSummary();
   refreshFoodIfFiltersChanged();
 });
 
@@ -1238,7 +1153,7 @@ function refreshFoodCardText() {
 
 function renderFoodCard(food, note) {
   state.currentFood = food;
-  state.historyLoggedForName = null; // món MỚI -> cho phép log lại lịch sử 1 lần
+  state.confirmed = false;
 
   el.pickCenter.hidden = true;
   el.foodResult.hidden = false;
@@ -1285,28 +1200,25 @@ function showThinkingThenPick() {
 
 el.rerollBtn.addEventListener("click", showThinkingThenPick);
 
-/* CTA chỉ còn 2 trạng thái (bỏ bước "Xác nhận" riêng theo yêu cầu — chọn món từ
-   random/danh sách/yêu thích/lịch sử đều coi là đã chọn xong, không bắt bấm thêm):
-   chưa có món -> random; đã có món -> tìm quán (tự mở sheet Vị trí trước nếu
-   chưa có toạ độ, không cần người dùng tự nhớ phải chọn vị trí trước). */
-function getCtaAction() {
-  if (!state.currentFood) return "suggest";
-  if (state.lat === null || state.lon === null) return "openLocation";
-  return "findNearby";
-}
-
-function handleBottomBarClick() {
-  const action = getCtaAction();
-  if (action === "suggest") showThinkingThenPick();
-  else if (action === "openLocation") openLocationSheet();
-  else findNearby();
+function confirmFood() {
+  const food = state.currentFood;
+  if (!food) return;
+  logHistory(food.name);
+  state.confirmed = true;
+  updateBottomBar();
 }
 
 function updateBottomBar() {
-  const action = getCtaAction();
-  // Text ngắn, không nhét tên món (VI+EN ghép lại dễ tràn 2 dòng trên màn hình nhỏ).
-  el.bottomBarBtn.textContent = action === "suggest" ? t("suggestBtn") : t("findNearbyShort");
-  el.bottomBarBtn.onclick = handleBottomBarClick;
+  if (!state.currentFood) {
+    el.bottomBarBtn.textContent = t("suggestBtn");
+    el.bottomBarBtn.onclick = showThinkingThenPick;
+  } else if (!state.confirmed) {
+    el.bottomBarBtn.textContent = t("confirmBtn");
+    el.bottomBarBtn.onclick = confirmFood;
+  } else {
+    el.bottomBarBtn.textContent = tf("findNearbyBtn", displayFoodName(state.currentFood));
+    el.bottomBarBtn.onclick = findNearby;
+  }
 }
 
 updateBottomBar();
@@ -1337,33 +1249,13 @@ el.banBtn.addEventListener("click", () => {
 
 /* ---------- Location: current position ---------- */
 
-// Chỉ dùng khi Nominatim không trả về "address" có cấu trúc (hiếm) — cắt thô
-// display_name như cũ, có thể dính tên địa điểm/quán ở đầu chuỗi.
-function shortAddressFallback(displayName) {
+function shortAddress(displayName) {
   return displayName.split(",").slice(0, 2).join(",").trim();
 }
 
-/* Bug thật: reverse geocode từ GPS hay trả về display_name bắt đầu bằng TÊN QUÁN/
-   ĐỊA ĐIỂM (vd "Trà Sữa Bobapop, 24, ..." hoặc "Sở Nông nghiệp và Môi trường, 63, ...")
-   vì Nominatim ưu tiên gắn toạ độ vào node POI gần nhất. Sửa bằng cách đọc object
-   "address" đã tách sẵn field (road/suburb/city...) — object này KHÔNG bao giờ chứa
-   tên POI (amenity/shop nằm ở field riêng, ta chủ động không đọc field đó), nên ghép
-   road + khu vực + thành phố sẽ luôn ra 1 địa chỉ thật, không phải tên địa điểm. */
-function formatLocationLabel(address, displayName) {
-  if (!address) return displayName ? shortAddressFallback(displayName) : t("currentLocationFallback");
-  const road = address.road || address.pedestrian || address.residential || address.street;
-  const area = address.suburb || address.quarter || address.neighbourhood || address.village || address.hamlet;
-  const city = address.city || address.town || address.state || address.county;
-  const parts = [road, area, city].filter(Boolean);
-  if (parts.length === 0) return displayName ? shortAddressFallback(displayName) : t("currentLocationFallback");
-  return parts.slice(0, 2).join(", ");
-}
-
 function updateLocationSummary() {
-  el.locationSummaryText.textContent =
-    state.locationLabel === null
-      ? `${t("noLocationYet")} · ${RADIUS_LABELS[state.radius]}`
-      : tf("locationSummary", state.locationLabel, RADIUS_LABELS[state.radius]);
+  if (state.locationLabel === null) return;
+  el.locationSummaryText.textContent = tf("locationSummary", state.locationLabel, RADIUS_LABELS[state.radius]);
 }
 
 /* Lưu lại vị trí + bộ lọc đang chọn để không mất khi tải lại trang (F5) — trước đây
@@ -1400,32 +1292,25 @@ function restoreSession() {
   el.spicyChip.classList.toggle("is-active", state.spicyOnly);
   updateFilterFeasibility();
 
-  updateLocationSummary();
+  if (state.locationLabel !== null && state.lat !== null && state.lon !== null) {
+    el.locationSummary.hidden = false;
+    el.locationPicker.hidden = true;
+    updateLocationSummary();
+  }
 }
 
-/* Vị trí vừa được xác định (GPS/chọn khu vực/gõ địa chỉ) — đóng mọi sheet vị trí
-   đang mở, và nếu đã có món đang chọn từ trước thì TỰ tìm quán luôn, không bắt
-   người dùng bấm CTA thêm lần nữa (đúng yêu cầu bỏ bước thao tác thừa). */
 function finalizeLocation(label) {
   state.locationLabel = label;
   updateLocationSummary();
+  el.locationSummary.hidden = false;
+  el.locationPicker.hidden = true;
   closeRegionSheet();
-  closeLocationSheet();
   saveSession();
-  updateBottomBar();
-  if (state.currentFood) findNearby();
 }
 
-function openLocationSheet() {
-  el.locationSheetBackdrop.hidden = false;
-}
-function closeLocationSheet() {
-  el.locationSheetBackdrop.hidden = true;
-}
-el.locationSummaryBtn.addEventListener("click", openLocationSheet);
-el.closeLocationSheetBtn.addEventListener("click", closeLocationSheet);
-el.locationSheetBackdrop.addEventListener("click", (e) => {
-  if (e.target === el.locationSheetBackdrop) closeLocationSheet();
+el.changeLocationBtn.addEventListener("click", () => {
+  el.locationSummary.hidden = true;
+  el.locationPicker.hidden = false;
 });
 
 el.useLocationBtn.addEventListener("click", () => {
@@ -1440,10 +1325,10 @@ el.useLocationBtn.addEventListener("click", () => {
       state.lat = pos.coords.latitude;
       state.lon = pos.coords.longitude;
       try {
-        const url = `https://nominatim.openstreetmap.org/reverse?format=json&addressdetails=1&lat=${state.lat}&lon=${state.lon}`;
+        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${state.lat}&lon=${state.lon}`;
         const res = await fetch(url);
         const data = await res.json();
-        finalizeLocation(formatLocationLabel(data.address, data.display_name));
+        finalizeLocation(data.display_name ? shortAddress(data.display_name) : t("currentLocationFallback"));
       } catch (err) {
         finalizeLocation(t("currentLocationFallback"));
       }
@@ -1487,7 +1372,7 @@ const fetchAddressSuggestions = debounce(async (query) => {
       return;
     }
     el.addressSuggestions.innerHTML = data
-      .map((item, i) => `<li data-index="${i}">${escapeHtml(item.display_name)}</li>`)
+      .map((item, i) => `<li data-index="${i}">${item.display_name}</li>`)
       .join("");
     el.addressSuggestions.hidden = false;
     el.addressSuggestions.querySelectorAll("li").forEach((li, i) => {
@@ -1497,7 +1382,7 @@ const fetchAddressSuggestions = debounce(async (query) => {
         state.lon = parseFloat(item.lon);
         el.addressSuggestions.hidden = true;
         el.addressInput.value = "";
-        finalizeLocation(shortAddressFallback(item.display_name));
+        finalizeLocation(shortAddress(item.display_name));
       });
     });
   } catch (err) {
@@ -1518,7 +1403,7 @@ document.addEventListener("click", (e) => {
 const PROVINCES_API = "https://provinces.open-api.vn/api/v1";
 
 function fillSelect(select, items, placeholder) {
-  select.innerHTML = `<option value="">${escapeHtml(placeholder)}</option>` + items.map((it) => `<option value="${it.code}">${escapeHtml(it.name)}</option>`).join("");
+  select.innerHTML = `<option value="">${placeholder}</option>` + items.map((it) => `<option value="${it.code}">${it.name}</option>`).join("");
 }
 
 async function loadProvinces() {
@@ -1621,40 +1506,6 @@ function amenityEmoji(amenity) {
   return { restaurant: "🍽️", fast_food: "🍔", cafe: "☕", food_court: "🍱" }[amenity] || "🍴";
 }
 
-/* So khớp món<->quán trước đây chỉ dựa vào food.keywords có xuất hiện trong tên
-   quán/tag cuisine hay không (substring) — khá yếu, vd "Cơm tấm" (keywords: "com
-   tam") sẽ KHÔNG khớp một quán chỉ ghi cuisine=vietnamese chung. Bổ sung map
-   category -> các tag cuisine OSM phổ biến để bắt thêm các quán khai báo cuisine
-   chung theo phong cách/quốc gia, khớp CHÍNH XÁC theo tag (không phải mò chuỗi). */
-const CATEGORY_CUISINE_TAGS = {
-  nuoc: ["vietnamese", "noodle", "soup", "pho"],
-  com: ["vietnamese", "rice"],
-  banh: ["vietnamese"],
-  nuong: ["vietnamese", "barbecue", "bbq", "grill", "grilled"],
-  ga: ["chicken", "vietnamese"],
-  lau: ["vietnamese", "hot_pot", "hotpot"],
-  "hai-san": ["seafood", "vietnamese"],
-  "an-vat": ["vietnamese", "street_food"],
-  chien: ["fast_food"],
-  "fast-food": ["fast_food", "burger", "american"],
-  pizza: ["pizza", "italian"],
-  burger: ["burger", "fast_food", "american"],
-  nhat: ["japanese", "sushi", "ramen"],
-  han: ["korean"],
-  "trung-dai": ["chinese", "taiwanese", "dim_sum"],
-  healthy: ["salad", "vegetarian", "vegan"],
-  "trang-mieng": ["dessert", "ice_cream"],
-  "do-uong": ["coffee_shop", "tea", "bubble_tea", "cafe"],
-  "quoc-te": ["international"]
-};
-
-function matchesCuisineTag(cuisineRaw, category) {
-  const tagList = CATEGORY_CUISINE_TAGS[category];
-  if (!cuisineRaw || !tagList) return false;
-  const cuisines = cuisineRaw.toLowerCase().split(";").map((s) => s.trim());
-  return cuisines.some((c) => tagList.includes(c));
-}
-
 const DAY_MAP = { Mo: 1, Tu: 2, We: 3, Th: 4, Fr: 5, Sa: 6, Su: 0 };
 
 function parseOpeningHours(tag) {
@@ -1710,15 +1561,11 @@ function parseOpeningHours(tag) {
   return null;
 }
 
-/* Trả về { elements, stale } — stale=true nghĩa là bản cache đã qua 6h (không còn
-   "mới") nhưng vẫn trong hạn 48h nên vẫn dùng tạm được, đợi fetch nền cập nhật lại. */
-function readPlacesCacheEntry(key) {
+function readPlacesCache(key) {
   const raw = loadJSON(PLACES_CACHE_KEY, {});
   const entry = raw[key];
-  if (!entry) return null;
-  const age = Date.now() - entry.timestamp;
-  if (age > PLACES_CACHE_MAX_AGE_MS) return null;
-  return { elements: entry.elements, stale: age >= PLACES_CACHE_TTL_MS };
+  if (entry && Date.now() - entry.timestamp < PLACES_CACHE_TTL_MS) return entry.elements;
+  return null;
 }
 
 function writePlacesCache(key, elements) {
@@ -1727,64 +1574,19 @@ function writePlacesCache(key, elements) {
   saveJSON(PLACES_CACHE_KEY, raw);
 }
 
-/* Bug thật: GPS Q.1 + Phở bò -> overpass-api.de trả 504, UI chỉ báo "đang bận" và
-   không có cách nào khác. Sửa bằng cách thử lần lượt nhiều mirror Overpass công
-   khai, mỗi host có timeout riêng (AbortController) để không treo UI khi 1 host
-   không phản hồi — chỉ thật sự lỗi khi CẢ 2 host đều fail. */
-const OVERPASS_HOSTS = [
-  "https://overpass-api.de/api/interpreter",
-  "https://overpass.kumi.systems/api/interpreter"
-];
-const OVERPASS_TIMEOUT_MS = 14000;
-
-async function fetchOverpassRaw(query) {
-  let lastErr = null;
-  for (const host of OVERPASS_HOSTS) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), OVERPASS_TIMEOUT_MS);
-    try {
-      const res = await fetch(host, {
-        method: "POST",
-        body: `data=${encodeURIComponent(query)}`,
-        signal: controller.signal
-      });
-      if (!res.ok) {
-        lastErr = new Error(`Overpass ${host} tra ve HTTP ${res.status}`);
-        continue;
-      }
-      const data = await res.json();
-      return data.elements || [];
-    } catch (err) {
-      lastErr = err;
-      continue; // thu host tiep theo (timeout/network error/HTTP loi deu roi vao day)
-    } finally {
-      clearTimeout(timer);
-    }
-  }
-  throw lastErr || new Error("Tất cả Overpass host đều lỗi");
-}
-
-function overpassQuery(lat, lon, radius) {
-  return `[out:json][timeout:25];(node["amenity"~"restaurant|fast_food|cafe|food_court"](around:${radius},${lat},${lon});way["amenity"~"restaurant|fast_food|cafe|food_court"](around:${radius},${lat},${lon}););out center 100;`;
-}
-
 async function fetchNearbyPlaces(lat, lon, radius) {
   const cacheKey = `${lat.toFixed(3)}_${lon.toFixed(3)}_${radius}`;
-  const query = overpassQuery(lat, lon, radius);
-  const cached = readPlacesCacheEntry(cacheKey);
+  const cached = readPlacesCache(cacheKey);
+  if (cached) return cached;
 
-  if (cached && !cached.stale) return cached.elements;
-
-  if (cached && cached.stale) {
-    // Stale-while-revalidate: trả bản cũ ngay để UI không phải chờ/báo lỗi, âm
-    // thầm fetch bản mới cho lần sau — lỗi ở đây bỏ qua vì đã có bản cũ để dùng.
-    fetchOverpassRaw(query)
-      .then((elements) => writePlacesCache(cacheKey, elements))
-      .catch(() => {});
-    return cached.elements;
-  }
-
-  const elements = await fetchOverpassRaw(query);
+  const query = `[out:json][timeout:25];(node["amenity"~"restaurant|fast_food|cafe|food_court"](around:${radius},${lat},${lon});way["amenity"~"restaurant|fast_food|cafe|food_court"](around:${radius},${lat},${lon}););out center 100;`;
+  const res = await fetch("https://overpass-api.de/api/interpreter", {
+    method: "POST",
+    body: `data=${encodeURIComponent(query)}`
+  });
+  if (!res.ok) throw new Error("Overpass request failed");
+  const data = await res.json();
+  const elements = data.elements || [];
   writePlacesCache(cacheKey, elements);
   return elements;
 }
@@ -1795,7 +1597,7 @@ function renderPlaceList(listEl, places) {
     .map((p) => {
       const mapsDir = `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}`;
       const mapsView = `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lon}`;
-      const openPart = p.open ? `<span class="${p.open.status === "open" ? "status-open" : ""}">${escapeHtml(p.open.label)}</span> · ` : "";
+      const openPart = p.open ? `<span class="${p.open.status === "open" ? "status-open" : ""}">${p.open.label}</span> · ` : "";
       // Giá hiện ở đây là giá THAM KHẢO của món (từ dữ liệu FOODS), KHÔNG phải giá
       // thật của riêng quán này — OSM không có dữ liệu giá theo từng quán, ghi rõ
       // "khoảng" để không gây hiểu lầm là giá chính xác tại quán đó.
@@ -1804,8 +1606,8 @@ function renderPlaceList(listEl, places) {
         <li class="result-item">
           <span class="result-emoji">${p.icon}</span>
           <div class="result-body">
-            <p class="result-name">${escapeHtml(p.name)}${p.matched ? `<span class="badge-match">${t("matchBadge")}</span>` : ""}</p>
-            <p class="result-meta">${openPart}${formatDistance(p.distance)}${p.address ? " · " + escapeHtml(p.address) : ""}${pricePart}</p>
+            <p class="result-name">${p.name}${p.matched ? `<span class="badge-match">${t("matchBadge")}</span>` : ""}</p>
+            <p class="result-meta">${openPart}${formatDistance(p.distance)}${p.address ? " · " + p.address : ""}${pricePart}</p>
             <div class="result-links">
               <a class="result-link" href="${mapsDir}" target="_blank" rel="noopener">${t("directions")}</a>
               <a class="result-link" href="${mapsView}" target="_blank" rel="noopener">${t("viewOnGoogleMaps")}</a>
@@ -1815,25 +1617,6 @@ function renderPlaceList(listEl, places) {
       `;
     })
     .join("");
-}
-
-/* Leaflet (CSS+JS, ~150KB) chỉ tải khi user thật sự mở tab Bản đồ lần đầu, không
-   tải sẵn ngay từ đầu session — đa số lượt dùng chỉ xem Danh sách. */
-let leafletLoadPromise = null;
-function ensureLeafletLoaded() {
-  if (leafletLoadPromise) return leafletLoadPromise;
-  leafletLoadPromise = new Promise((resolve, reject) => {
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css";
-    document.head.appendChild(link);
-    const script = document.createElement("script");
-    script.src = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js";
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error("Không tải được Leaflet"));
-    document.body.appendChild(script);
-  });
-  return leafletLoadPromise;
 }
 
 let leafletMap = null;
@@ -1872,23 +1655,14 @@ function getVisiblePlaces() {
 }
 
 el.viewToggle.querySelectorAll(".view-btn").forEach((btn) => {
-  btn.addEventListener("click", async () => {
-    // Không có quán nào (0 kết quả/đang lỗi) thì không cho mở tab Bản đồ — tránh
-    // hiện bản đồ trống chỉ có 1 pin của người dùng, dễ hiểu lầm là app bị treo.
-    if (btn.dataset.view === "map" && state.matchedPlaces.length === 0 && state.otherPlaces.length === 0) return;
+  btn.addEventListener("click", () => {
     el.viewToggle.querySelectorAll(".view-btn").forEach((b) => b.classList.remove("is-active"));
     btn.classList.add("is-active");
     if (btn.dataset.view === "map") {
       el.resultsList.hidden = true;
       el.fallbackWrap.hidden = true;
       el.mapView.hidden = false;
-      try {
-        await ensureLeafletLoaded();
-        renderMap(getVisiblePlaces());
-      } catch (err) {
-        el.mapView.hidden = true;
-        el.resultsList.hidden = false;
-      }
+      renderMap(getVisiblePlaces());
     } else {
       el.mapView.hidden = true;
       el.resultsList.hidden = false;
@@ -1903,45 +1677,14 @@ el.showAllBtn.addEventListener("click", () => {
   el.fallbackWrap.hidden = true;
 });
 
-/* Bấm chip bán kính ngay trong khối lỗi/rỗng — không bắt mở sheet Vị trí chỉ để
-   tăng bán kính rồi quay lại bấm tìm lần nữa. */
-el.errorRadiusChips.querySelectorAll(".chip").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    state.radius = parseInt(btn.dataset.value, 10);
-    setActiveChip(el.radiusChips, String(state.radius));
-    updateLocationSummary();
-    saveSession();
-    findNearby();
-  });
-});
-el.retryNearbyBtn.addEventListener("click", findNearby);
-
-function showResultsError(message) {
-  el.resultsStatus.textContent = "";
-  el.resultsErrorBox.hidden = false;
-  el.resultsErrorText.textContent = message;
-  setActiveChip(el.errorRadiusChips, String(state.radius));
-  el.errorRadiusChips.querySelectorAll(".chip").forEach((btn) => {
-    btn.disabled = parseInt(btn.dataset.value, 10) <= state.radius;
-  });
-}
-
 async function findNearby() {
   const food = state.currentFood;
-  if (!food) return;
-  // Chỉ log 1 lần cho mỗi lượt chọn món — bấm "Thử lại" sau khi Overpass lỗi (rất
-  // thường gặp) không được nhồi thêm bản ghi lịch sử trùng cho cùng 1 món.
-  if (state.historyLoggedForName !== food.name) {
-    logHistory(food.name);
-    state.historyLoggedForName = food.name;
-  }
   el.resultsSection.hidden = false;
   el.resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
   el.resultsList.innerHTML = "";
   el.fallbackList.innerHTML = "";
   el.fallbackList.hidden = true;
   el.fallbackWrap.hidden = true;
-  el.resultsErrorBox.hidden = true;
   el.mapView.hidden = true;
   el.resultsList.hidden = false;
   el.viewToggle.querySelectorAll(".view-btn").forEach((b) => b.classList.toggle("is-active", b.dataset.view === "list"));
@@ -1970,14 +1713,13 @@ async function findNearby() {
         const name = tags.name || t("unnamedPlace");
         const distance = haversineMeters(state.lat, state.lon, lat, lon);
         const haystack = normalizeVN(`${name} ${tags.cuisine || ""}`);
-        const keywordMatched = food.keywords.some((kw) => haystack.includes(normalizeVN(kw)));
-        const cuisineMatched = matchesCuisineTag(tags.cuisine, food.category);
+        const matched = food.keywords.some((kw) => haystack.includes(normalizeVN(kw)));
         return {
           name,
           lat,
           lon,
           distance,
-          matched: keywordMatched || cuisineMatched,
+          matched,
           address: tags["addr:street"] || "",
           icon: amenityEmoji(tags.amenity),
           open: parseOpeningHours(tags.opening_hours)
@@ -1986,11 +1728,6 @@ async function findNearby() {
       .filter(Boolean)
       .sort((a, b) => a.distance - b.distance)
       .slice(0, 60);
-
-    if (places.length === 0) {
-      showResultsError(t("noPlacesAtAll"));
-      return;
-    }
 
     const matchedPlaces = places.filter((p) => p.matched);
     const otherPlaces = places.filter((p) => !p.matched);
@@ -2010,18 +1747,16 @@ async function findNearby() {
         renderPlaceList(el.fallbackList, state.otherPlaces);
       }
     } else {
-      // 0 quán khớp món nhưng vẫn có quán khác gần đó — hiện luôn danh sách, không
-      // giấu sau nút "Xem tất cả" (chỉ dùng nút đó khi ĐÃ có kết quả khớp rồi).
-      // fallbackShown=true ngay (không cần bấm) để tab Bản đồ (getVisiblePlaces) vẫn
-      // đồng bộ đúng những gì đang thấy ở Danh sách, không lệch giữa 2 tab.
       el.resultsStatus.textContent = tf("noneMatched", displayFoodName(food), RADIUS_LABELS[state.radius]);
-      state.otherPlaces = otherPlaces.slice(0, 25);
-      state.fallbackShown = true;
-      renderPlaceList(el.fallbackList, state.otherPlaces);
-      el.fallbackList.hidden = false;
+      if (otherPlaces.length > 0) {
+        state.hasFallback = true;
+        state.otherPlaces = otherPlaces.slice(0, 25);
+        el.fallbackWrap.hidden = false;
+        renderPlaceList(el.fallbackList, state.otherPlaces);
+      }
     }
   } catch (err) {
-    showResultsError(t("nearbyLoadError"));
+    el.resultsStatus.textContent = t("nearbyLoadError");
   }
 }
 
@@ -2037,12 +1772,6 @@ el.langToggle.querySelectorAll(".lang-btn").forEach((btn) => {
 /* ---------- Theme (Sáng/Tối/Hệ thống) ---------- */
 
 const THEME_KEY = "hnag_theme_v1";
-const THEME_COLOR = { light: "#ea580c", dark: "#1a1613" };
-
-function resolveEffectiveTheme(theme) {
-  if (theme === "dark" || theme === "light") return theme;
-  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
 
 function applyTheme(theme) {
   if (theme === "system") {
@@ -2051,10 +1780,6 @@ function applyTheme(theme) {
     document.documentElement.setAttribute("data-theme", theme);
   }
   el.themeToggle.querySelectorAll(".lang-btn").forEach((b) => b.classList.toggle("is-active", b.dataset.theme === theme));
-  // Thanh trạng thái iOS/Android (theme-color) phải đổi màu theo, không chỉ đổi
-  // màu bên trong app — nếu không app trông như 2 nửa sáng/tối lệch nhau.
-  const metaTheme = document.getElementById("themeColorMeta");
-  if (metaTheme) metaTheme.content = THEME_COLOR[resolveEffectiveTheme(theme)];
 }
 
 el.themeToggle.querySelectorAll(".lang-btn").forEach((btn) => {
@@ -2064,14 +1789,6 @@ el.themeToggle.querySelectorAll(".lang-btn").forEach((btn) => {
     applyTheme(theme);
   });
 });
-
-// Đang ở "Hệ thống" mà đổi theme OS trong lúc app đang mở (vd đến giờ Dark Mode tự
-// động buổi tối) thì theme-color phải theo kịp ngay, không đợi reload trang.
-if (window.matchMedia) {
-  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
-    if (loadJSON(THEME_KEY, "system") === "system") applyTheme("system");
-  });
-}
 
 applyTheme(loadJSON(THEME_KEY, "system"));
 
