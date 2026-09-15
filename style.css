@@ -20,6 +20,13 @@
   box-sizing: border-box;
 }
 
+/* Bắt buộc [hidden] luôn thắng, kể cả khi 1 class khác trên cùng phần tử có set
+   display (vd .sheet-backdrop, .location-chip đều dùng display:flex) — nếu không có
+   dòng này, các phần tử "hidden" bằng JS vẫn hiện ra do class ghi đè display. */
+[hidden] {
+  display: none !important;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -31,7 +38,7 @@ body {
 .app {
   max-width: 480px;
   margin: 0 auto;
-  padding: 32px 16px 48px;
+  padding: 32px 16px calc(96px + env(safe-area-inset-bottom, 0px));
 }
 
 /* Header */
@@ -139,10 +146,6 @@ body {
   border-color: var(--primary);
   background: var(--primary-soft);
   color: var(--primary-dark);
-}
-
-.region-panel {
-  margin-top: 14px;
 }
 
 .region-row {
@@ -363,22 +366,30 @@ button {
   margin-top: 14px;
 }
 
-/* Food card */
+/* Food card — hero image, chữ đè lên ảnh (kiểu card nhà hàng trên app giao đồ ăn) */
+.pick-hint {
+  margin: 0;
+  text-align: center;
+  color: var(--text-muted);
+  padding: 12px 0;
+}
+
 .food-card {
   position: relative;
   border-radius: var(--radius-md);
   overflow: hidden;
   background: var(--primary-soft);
+  aspect-ratio: 4 / 3;
 }
 
 .food-image-wrap {
-  width: 100%;
-  aspect-ratio: 16 / 9;
+  position: absolute;
+  inset: 0;
   background: linear-gradient(135deg, var(--primary-soft), var(--primary-soft-strong));
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3rem;
+  font-size: 4rem;
   overflow: hidden;
 }
 
@@ -389,17 +400,25 @@ button {
   display: block;
 }
 
+.food-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.32) 42%, rgba(0, 0, 0, 0) 68%);
+  pointer-events: none;
+}
+
 .food-actions-overlay {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 12px;
+  right: 12px;
   display: flex;
-  gap: 6px;
+  gap: 8px;
+  z-index: 2;
 }
 
 .icon-btn {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 999px;
   border: none;
   background: rgba(255, 255, 255, 0.92);
@@ -407,43 +426,67 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .icon-btn.is-active {
   background: var(--primary);
 }
 
+.icon-btn-plain {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: none;
+  background: var(--bg);
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.food-info-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 16px;
+  z-index: 1;
+}
+
 .food-name {
-  margin: 14px 0 0;
-  font-size: 1.4rem;
+  margin: 0;
+  font-size: 1.5rem;
   font-weight: 800;
-  text-align: center;
+  color: #fff;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
 }
 
 .chip-row {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   flex-wrap: wrap;
   gap: 6px;
-  margin: 10px 0 0;
+  margin: 8px 0 0;
 }
 
 .tag {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-  font-size: 0.78rem;
-  font-weight: 600;
+  background: rgba(255, 255, 255, 0.88);
+  border: none;
+  color: var(--text);
+  font-size: 0.76rem;
+  font-weight: 700;
   padding: 5px 10px;
   border-radius: 999px;
+  backdrop-filter: blur(4px);
 }
 
 .pick-note {
-  margin: 10px 0 0;
+  margin: 12px 0 0;
   text-align: center;
   font-size: 0.78rem;
   color: var(--text-muted);
@@ -451,15 +494,14 @@ button {
 }
 
 .thinking {
-  text-align: center;
-  padding: 28px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   color: var(--text-muted);
   font-weight: 600;
   font-size: 0.92rem;
-}
-
-.thinking .spinner {
-  margin-right: 8px;
+  text-align: center;
 }
 
 /* History */
@@ -649,4 +691,78 @@ button {
   .location-modes {
     flex-direction: column;
   }
+}
+
+/* Bottom CTA bar — dính đáy màn hình như nút "Đặt món" trên các app giao đồ ăn */
+.bottom-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 500;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--border);
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+}
+
+.bottom-bar .btn-primary {
+  max-width: 480px;
+  margin: 0 auto;
+  display: block;
+}
+
+/* Bottom sheet modal — chọn khu vực */
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(20, 15, 10, 0.45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.15s ease;
+}
+
+.sheet {
+  width: 100%;
+  max-width: 480px;
+  background: var(--card-bg);
+  border-radius: 20px 20px 0 0;
+  padding: 8px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.16);
+  animation: slideUp 0.22s ease;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.sheet-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--border);
+  margin: 0 auto 14px;
+}
+
+.sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.sheet-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
 }

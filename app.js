@@ -164,6 +164,7 @@ const state = {
   spicyOnly: false,
   recentShown: [],
   currentFood: null,
+  confirmed: false,
   province: null,
   district: null,
   hasFallback: false,
@@ -174,7 +175,9 @@ const el = {
   addressInput: document.getElementById("addressInput"),
   useLocationBtn: document.getElementById("useLocationBtn"),
   pickRegionModeBtn: document.getElementById("pickRegionModeBtn"),
-  regionPanel: document.getElementById("regionPanel"),
+  regionSheetBackdrop: document.getElementById("regionSheetBackdrop"),
+  regionSheet: document.getElementById("regionSheet"),
+  closeRegionSheetBtn: document.getElementById("closeRegionSheetBtn"),
   addressSuggestions: document.getElementById("addressSuggestions"),
   addressStatus: document.getElementById("addressStatus"),
   provinceSelect: document.getElementById("provinceSelect"),
@@ -194,7 +197,7 @@ const el = {
   favoritesChips: document.getElementById("favoritesChips"),
   blacklistNote: document.getElementById("blacklistNote"),
   pickCenter: document.getElementById("pickCenter"),
-  suggestBtn: document.getElementById("suggestBtn"),
+  bottomBarBtn: document.getElementById("bottomBarBtn"),
   foodResult: document.getElementById("foodResult"),
   foodCard: document.getElementById("foodCard"),
   foodName: document.getElementById("foodName"),
@@ -202,10 +205,6 @@ const el = {
   pickNote: document.getElementById("pickNote"),
   favBtn: document.getElementById("favBtn"),
   banBtn: document.getElementById("banBtn"),
-  preConfirm: document.getElementById("preConfirm"),
-  postConfirm: document.getElementById("postConfirm"),
-  confirmBtn: document.getElementById("confirmBtn"),
-  findNearbyBtn: document.getElementById("findNearbyBtn"),
   rerollBtn: document.getElementById("rerollBtn"),
   historySection: document.getElementById("historySection"),
   historyList: document.getElementById("historyList"),
@@ -474,11 +473,10 @@ function isFavorite(name) {
 
 function renderFoodCard(food, note) {
   state.currentFood = food;
+  state.confirmed = false;
 
   el.pickCenter.hidden = true;
   el.foodResult.hidden = false;
-  el.preConfirm.hidden = false;
-  el.postConfirm.hidden = true;
 
   el.foodName.textContent = food.name;
   // Chỉ gắn nhãn "bữa" hiện tại nếu món thực sự hợp bữa đó — tránh gắn sai (ví dụ món
@@ -501,25 +499,51 @@ function renderFoodCard(food, note) {
     if (state.currentFood !== food || !url) return;
     wrap.innerHTML = `<img src="${url}" alt="${food.name}" loading="lazy" />`;
   });
+
+  updateBottomBar();
 }
 
 function showThinkingThenPick() {
   el.pickCenter.hidden = true;
   el.foodResult.hidden = false;
-  el.foodCard.querySelector(".food-image-wrap").innerHTML = "";
-  el.foodName.innerHTML = '<span class="thinking"><span class="spinner"></span>Đang nghĩ xem hôm nay nên ăn gì…</span>';
+  el.foodCard.querySelector(".food-image-wrap").innerHTML =
+    '<span class="thinking"><span class="spinner"></span>Đang nghĩ...</span>';
+  el.foodName.textContent = "";
   el.foodTags.innerHTML = "";
   el.pickNote.hidden = true;
-  el.preConfirm.hidden = true;
-  el.postConfirm.hidden = true;
+  state.currentFood = null;
+  el.bottomBarBtn.disabled = true;
   setTimeout(() => {
     const { food, note } = pickFood();
     renderFoodCard(food, note);
+    el.bottomBarBtn.disabled = false;
   }, 650);
 }
 
-el.suggestBtn.addEventListener("click", showThinkingThenPick);
 el.rerollBtn.addEventListener("click", showThinkingThenPick);
+
+function confirmFood() {
+  const food = state.currentFood;
+  if (!food) return;
+  logHistory(food.name);
+  state.confirmed = true;
+  updateBottomBar();
+}
+
+function updateBottomBar() {
+  if (!state.currentFood) {
+    el.bottomBarBtn.textContent = "🎲 Chọn món cho tôi";
+    el.bottomBarBtn.onclick = showThinkingThenPick;
+  } else if (!state.confirmed) {
+    el.bottomBarBtn.textContent = "✅ Chọn món này";
+    el.bottomBarBtn.onclick = confirmFood;
+  } else {
+    el.bottomBarBtn.textContent = `🔍 Xem quán ${state.currentFood.name} gần bạn`;
+    el.bottomBarBtn.onclick = findNearby;
+  }
+}
+
+updateBottomBar();
 
 el.favBtn.addEventListener("click", () => {
   const food = state.currentFood;
@@ -543,14 +567,6 @@ el.banBtn.addEventListener("click", () => {
   showThinkingThenPick();
 });
 
-el.confirmBtn.addEventListener("click", () => {
-  const food = state.currentFood;
-  if (!food) return;
-  logHistory(food.name);
-  el.preConfirm.hidden = true;
-  el.postConfirm.hidden = false;
-  el.findNearbyBtn.textContent = `🔍 Xem quán ${food.name} gần bạn`;
-});
 
 /* ---------- Location: current position ---------- */
 
@@ -568,6 +584,7 @@ function finalizeLocation(label) {
   updateLocationSummary();
   el.locationSummary.hidden = false;
   el.locationPicker.hidden = true;
+  closeRegionSheet();
 }
 
 el.changeLocationBtn.addEventListener("click", () => {
@@ -605,10 +622,18 @@ el.useLocationBtn.addEventListener("click", () => {
 
 /* ---------- Location: pick region ---------- */
 
-el.pickRegionModeBtn.addEventListener("click", () => {
-  const willShow = el.regionPanel.hidden;
-  el.regionPanel.hidden = !willShow;
-  el.pickRegionModeBtn.classList.toggle("is-active", willShow);
+function openRegionSheet() {
+  el.regionSheetBackdrop.hidden = false;
+}
+
+function closeRegionSheet() {
+  el.regionSheetBackdrop.hidden = true;
+}
+
+el.pickRegionModeBtn.addEventListener("click", openRegionSheet);
+el.closeRegionSheetBtn.addEventListener("click", closeRegionSheet);
+el.regionSheetBackdrop.addEventListener("click", (e) => {
+  if (e.target === el.regionSheetBackdrop) closeRegionSheet();
 });
 
 const fetchAddressSuggestions = debounce(async (query) => {
@@ -918,9 +943,10 @@ el.showAllBtn.addEventListener("click", () => {
   el.fallbackWrap.hidden = true;
 });
 
-el.findNearbyBtn.addEventListener("click", async () => {
+async function findNearby() {
   const food = state.currentFood;
   el.resultsSection.hidden = false;
+  el.resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
   el.resultsList.innerHTML = "";
   el.fallbackList.innerHTML = "";
   el.fallbackList.hidden = true;
@@ -994,7 +1020,7 @@ el.findNearbyBtn.addEventListener("click", async () => {
   } catch (err) {
     el.resultsStatus.textContent = "Không tải được dữ liệu quán ăn (server OpenStreetMap có thể đang bận). Thử lại sau ít phút.";
   }
-});
+}
 
 renderFavoritesChips();
 renderBlacklistNote();

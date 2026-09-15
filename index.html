@@ -2,13 +2,18 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Hôm nay ăn gì?</title>
+<meta name="theme-color" content="#ea580c">
+<meta name="description" content="Gợi ý món ăn + tìm quán gần bạn">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
   <div class="app">
@@ -34,34 +39,6 @@
           <button id="useLocationBtn" class="mode-btn">📍 Dùng vị trí hiện tại</button>
           <button id="pickRegionModeBtn" class="mode-btn">🗺️ Chọn khu vực</button>
         </div>
-
-        <div id="regionPanel" class="region-panel" hidden>
-          <div class="region-row">
-            <select id="provinceSelect">
-              <option value="">Tỉnh/Thành phố…</option>
-            </select>
-            <select id="districtSelect" disabled>
-              <option value="">Quận/Huyện…</option>
-            </select>
-            <select id="wardSelect" disabled>
-              <option value="">Phường/Xã…</option>
-            </select>
-          </div>
-
-          <div class="divider"><span>hoặc nhập địa chỉ cụ thể</span></div>
-          <div class="address-row">
-            <input
-              id="addressInput"
-              type="text"
-              placeholder="VD: 123 Nguyễn Huệ, Quận 1"
-              autocomplete="off"
-            />
-          </div>
-          <ul id="addressSuggestions" class="suggestions" hidden></ul>
-
-          <button id="applyRegionBtn" class="btn-primary btn-wide" disabled>Áp dụng vị trí</button>
-        </div>
-
         <p id="addressStatus" class="status-text"></p>
       </div>
 
@@ -112,27 +89,23 @@
     <!-- GỢI Ý MÓN -->
     <section class="card">
       <div id="pickCenter">
-        <button id="suggestBtn" class="btn-primary btn-wide btn-lg">🎲 Chọn món cho tôi</button>
+        <p class="pick-hint">Bấm nút bên dưới để bắt đầu</p>
       </div>
 
       <div id="foodResult" hidden>
         <div id="foodCard" class="food-card">
           <div class="food-image-wrap"></div>
+          <div class="food-scrim"></div>
           <div class="food-actions-overlay">
             <button id="favBtn" class="icon-btn" title="Thích món này">🤍</button>
             <button id="banBtn" class="icon-btn" title="Không gợi ý món này nữa">🙅</button>
           </div>
+          <div class="food-info-overlay">
+            <p class="food-name" id="foodName"></p>
+            <div class="chip-row" id="foodTags"></div>
+          </div>
         </div>
-        <p class="food-name" id="foodName"></p>
-        <div class="chip-row" id="foodTags"></div>
         <p id="pickNote" class="pick-note" hidden></p>
-
-        <div id="preConfirm" class="button-row">
-          <button id="confirmBtn" class="btn-primary btn-wide">✅ Chọn món này</button>
-        </div>
-        <div id="postConfirm" class="button-row" hidden>
-          <button id="findNearbyBtn" class="btn-primary btn-wide"></button>
-        </div>
         <button id="rerollBtn" class="link-btn reroll-link">🎲 Gợi ý món khác</button>
       </div>
     </section>
@@ -169,7 +142,48 @@
     </footer>
   </div>
 
+  <!-- Bottom sheet: chọn khu vực -->
+  <div id="regionSheetBackdrop" class="sheet-backdrop" hidden>
+    <div id="regionSheet" class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <h3>Chọn khu vực</h3>
+        <button id="closeRegionSheetBtn" class="icon-btn-plain">✕</button>
+      </div>
+
+      <div class="region-row">
+        <select id="provinceSelect">
+          <option value="">Tỉnh/Thành phố…</option>
+        </select>
+        <select id="districtSelect" disabled>
+          <option value="">Quận/Huyện…</option>
+        </select>
+        <select id="wardSelect" disabled>
+          <option value="">Phường/Xã…</option>
+        </select>
+      </div>
+
+      <div class="divider"><span>hoặc nhập địa chỉ cụ thể</span></div>
+      <div class="address-row">
+        <input
+          id="addressInput"
+          type="text"
+          placeholder="VD: 123 Nguyễn Huệ, Quận 1"
+          autocomplete="off"
+        />
+      </div>
+      <ul id="addressSuggestions" class="suggestions" hidden></ul>
+
+      <button id="applyRegionBtn" class="btn-primary btn-wide" disabled>Áp dụng vị trí</button>
+    </div>
+  </div>
+
+  <!-- Bottom CTA bar (dính đáy, 1 nút chính duy nhất theo trạng thái hiện tại) -->
+  <div class="bottom-bar">
+    <button id="bottomBarBtn" class="btn-primary btn-wide btn-lg">🎲 Chọn món cho tôi</button>
+  </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-  <script src="app.js?v=4"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>
