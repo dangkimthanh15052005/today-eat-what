@@ -1,130 +1,225 @@
 const FOODS = [
-  { name: "Phở bò", nameEn: "Beef Pho", meal: ["breakfast", "lunch", "dinner"], price: "re", category: "nuoc", spicy: false, keywords: ["pho"], wiki: "Phở", emoji: "🍜" },
-  { name: "Bún bò Huế", nameEn: "Hue Beef Vermicelli Soup", meal: ["breakfast", "lunch"], price: "re", category: "nuoc", spicy: true, keywords: ["bun bo"], wiki: "Bún bò Huế", emoji: "🍲" },
-  { name: "Bún chả", nameEn: "Grilled Pork with Vermicelli", meal: ["lunch"], price: "re", category: "nuoc", spicy: false, keywords: ["bun cha"], wiki: "Bún chả", emoji: "🍢" },
-  { name: "Bún riêu", nameEn: "Crab & Tomato Vermicelli Soup", meal: ["breakfast", "lunch"], price: "re", category: "nuoc", spicy: false, keywords: ["bun rieu"], wiki: "Bún riêu", emoji: "🍲" },
-  { name: "Bún đậu mắm tôm", nameEn: "Vermicelli with Tofu & Shrimp Paste", meal: ["lunch", "dinner"], price: "re", category: "nuoc", spicy: false, keywords: ["bun dau"], wiki: "Bún đậu mắm tôm", emoji: "🍚" },
-  { name: "Bún mắm", nameEn: "Fermented Fish Vermicelli Soup", meal: ["lunch", "dinner"], price: "re", category: "nuoc", spicy: true, keywords: ["bun mam"], wiki: "Bún mắm", emoji: "🍜" },
-  { name: "Bún ốc", nameEn: "Snail Vermicelli Soup", meal: ["breakfast", "lunch"], price: "re", category: "nuoc", spicy: true, keywords: ["bun oc"], wiki: "Bún ốc", emoji: "🍜" },
-  { name: "Bún cá", nameEn: "Fish Vermicelli Soup", meal: ["breakfast", "lunch"], price: "re", category: "nuoc", spicy: false, keywords: ["bun ca"], wiki: "Bún cá", emoji: "🍜" },
-  { name: "Cơm tấm", nameEn: "Broken Rice", meal: ["breakfast", "lunch", "dinner"], price: "re", category: "com", spicy: false, keywords: ["com tam"], wiki: "Cơm tấm", emoji: "🍛" },
-  { name: "Cơm gà", nameEn: "Chicken Rice", meal: ["lunch", "dinner"], price: "re", category: "com", spicy: false, keywords: ["com ga"], wiki: "Cơm gà", emoji: "🍛" },
-  { name: "Cơm chay", nameEn: "Vegetarian Rice", meal: ["lunch", "dinner"], price: "re", category: "com", spicy: false, keywords: ["com chay", "chay"], wiki: "Cơm chay", emoji: "🥗" },
-  { name: "Cơm rang", nameEn: "Fried Rice", meal: ["lunch", "dinner", "latenight"], price: "re", category: "com", spicy: false, keywords: ["com rang", "com chien"], wiki: "Cơm rang", emoji: "🍚" },
-  { name: "Cơm niêu", nameEn: "Clay Pot Rice", meal: ["lunch", "dinner"], price: "vua", category: "com", spicy: false, keywords: ["com nieu"], wiki: "Cơm niêu", emoji: "🍚" },
-  { name: "Bò né", nameEn: "Sizzling Beef & Egg", meal: ["breakfast"], price: "vua", category: "com", spicy: false, keywords: ["bo ne"], wiki: "Bò né", emoji: "🍳" },
-  { name: "Bánh mì", nameEn: "Vietnamese Baguette Sandwich", meal: ["breakfast", "latenight"], price: "re", category: "banh", spicy: false, keywords: ["banh mi"], wiki: "Bánh mì", emoji: "🥖" },
-  { name: "Bánh cuốn", nameEn: "Steamed Rice Rolls", meal: ["breakfast"], price: "re", category: "banh", spicy: false, keywords: ["banh cuon"], wiki: "Bánh cuốn", emoji: "🥟" },
-  { name: "Bánh xèo", nameEn: "Sizzling Crepe", meal: ["lunch", "dinner"], price: "vua", category: "banh", spicy: false, keywords: ["banh xeo"], wiki: "Bánh xèo", emoji: "🥞" },
-  { name: "Bánh bèo", nameEn: "Steamed Rice Cakes", meal: ["breakfast", "lunch"], price: "re", category: "banh", spicy: false, keywords: ["banh beo"], wiki: "Bánh bèo", emoji: "🥟" },
-  { name: "Bánh khọt", nameEn: "Mini Savory Pancakes", meal: ["lunch", "dinner"], price: "re", category: "banh", spicy: false, keywords: ["banh khot"], wiki: "Bánh khọt", emoji: "🥞" },
-  { name: "Bánh giò", nameEn: "Pyramid Rice Dumpling", meal: ["breakfast"], price: "re", category: "banh", spicy: false, keywords: ["banh gio"], wiki: "Bánh giò", emoji: "🥟" },
-  { name: "Bánh bao", nameEn: "Steamed Bun", meal: ["breakfast"], price: "re", category: "banh", spicy: false, keywords: ["banh bao"], wiki: "Bánh bao", emoji: "🥟" },
-  { name: "Hủ tiếu", nameEn: "Southern-style Noodle Soup", meal: ["breakfast", "lunch"], price: "re", category: "nuoc", spicy: false, keywords: ["hu tieu"], wiki: "Hủ tiếu", emoji: "🍜" },
-  { name: "Mì Quảng", nameEn: "Quang-style Turmeric Noodles", meal: ["lunch", "dinner"], price: "vua", category: "nuoc", spicy: false, keywords: ["mi quang"], wiki: "Mì Quảng", emoji: "🍜" },
-  { name: "Mì cay", nameEn: "Korean Spicy Noodles", meal: ["lunch", "dinner"], price: "vua", category: "nuoc", spicy: true, keywords: ["mi cay"], wiki: null, image: "https://commons.wikimedia.org/wiki/Special:FilePath/M%C3%AC_cay_c%E1%BA%A5p_%C4%91%E1%BB%99_2_-_Mirace.jpg?width=800", emoji: "🌶️" },
-  { name: "Cháo lòng", nameEn: "Rice Porridge with Pork Offal", meal: ["breakfast", "latenight"], price: "re", category: "nuoc", spicy: false, keywords: ["chao long"], wiki: "Cháo lòng", emoji: "🥣" },
-  { name: "Súp cua", nameEn: "Crab Soup", meal: ["breakfast", "lunch"], price: "re", category: "nuoc", spicy: false, keywords: ["sup cua"], wiki: "Súp cua", emoji: "🥣" },
-  { name: "Xôi", nameEn: "Sticky Rice", meal: ["breakfast"], price: "re", category: "com", spicy: false, keywords: ["xoi"], wiki: "Xôi", emoji: "🍚" },
-  { name: "Bánh canh", nameEn: "Thick Noodle Soup", meal: ["breakfast", "lunch"], price: "re", category: "nuoc", spicy: false, keywords: ["banh canh"], wiki: "Bánh canh", emoji: "🍲" },
-  { name: "Gỏi cuốn", nameEn: "Fresh Spring Rolls", meal: ["lunch", "dinner"], price: "re", category: "an-vat", spicy: false, keywords: ["goi cuon"], wiki: "Gỏi cuốn", emoji: "🥗" },
-  { name: "Chả giò", nameEn: "Fried Spring Rolls", meal: ["lunch", "dinner", "latenight"], price: "re", category: "an-vat", spicy: false, keywords: ["cha gio", "nem ran"], wiki: "Chả giò", emoji: "🥟" },
-  { name: "Nem chua rán", nameEn: "Fried Fermented Pork Rolls", meal: ["latenight"], price: "re", category: "an-vat", spicy: false, keywords: ["nem chua ran"], wiki: "Nem chua rán", emoji: "🍢" },
-  { name: "Xúc xích / Lạp xưởng nướng", nameEn: "Grilled Sausage", meal: ["latenight"], price: "re", category: "an-vat", spicy: false, keywords: ["xuc xich", "lap xuong"], wiki: "Xúc xích", emoji: "🌭" },
-  { name: "Nem nướng", nameEn: "Grilled Pork Skewers", meal: ["lunch", "dinner"], price: "vua", category: "nuong", spicy: false, keywords: ["nem nuong"], wiki: "Nem nướng", emoji: "🍢" },
-  { name: "Bún thịt nướng", nameEn: "Grilled Pork with Vermicelli & Herbs", meal: ["lunch", "dinner"], price: "re", category: "nuoc", spicy: false, keywords: ["bun thit nuong"], wiki: "Bún thịt nướng", emoji: "🍜" },
-  { name: "Lẩu", nameEn: "Hot Pot", meal: ["dinner"], price: "sang", category: "nuoc", spicy: false, keywords: ["lau"], wiki: "Lẩu", emoji: "🍲" },
-  { name: "Đồ nướng", nameEn: "Grilled BBQ", meal: ["dinner", "latenight"], price: "vua", category: "nuong", spicy: false, keywords: ["nuong", "bbq"], wiki: "Thịt nướng", emoji: "🍖" },
-  { name: "Chả cá", nameEn: "Turmeric Fish with Dill", meal: ["lunch", "dinner"], price: "vua", category: "nuong", spicy: false, keywords: ["cha ca"], wiki: "Chả cá Lã Vọng", emoji: "🐟" },
-  { name: "Hải sản", nameEn: "Seafood", meal: ["dinner"], price: "sang", category: "hai-san", spicy: false, keywords: ["hai san", "seafood"], wiki: "Hải sản", emoji: "🦐" },
-  { name: "Ốc", nameEn: "Snails", meal: ["dinner", "latenight"], price: "vua", category: "hai-san", spicy: true, keywords: ["oc"], wiki: "Ốc", emoji: "🐌" },
-  { name: "Gà rán", nameEn: "Fried Chicken", meal: ["lunch", "dinner", "latenight"], price: "vua", category: "chien", spicy: false, keywords: ["ga ran", "kfc", "fried chicken"], wiki: "Gà rán", emoji: "🍗" },
-  { name: "Pizza", nameEn: "Pizza", meal: ["lunch", "dinner"], price: "vua", category: "quoc-te", spicy: false, keywords: ["pizza"], wiki: "Pizza", emoji: "🍕" },
-  { name: "Sushi", nameEn: "Sushi", meal: ["lunch", "dinner"], price: "sang", category: "quoc-te", spicy: false, keywords: ["sushi", "nhat ban", "japanese"], wiki: "Sushi", emoji: "🍣" },
-  { name: "Mì Ý", nameEn: "Spaghetti", meal: ["lunch", "dinner"], price: "vua", category: "quoc-te", spicy: false, keywords: ["pasta", "spaghetti", "y"], wiki: "Mì Ý", emoji: "🍝" },
-  { name: "Burger", nameEn: "Burger", meal: ["lunch", "dinner", "latenight"], price: "vua", category: "quoc-te", spicy: false, keywords: ["burger"], wiki: "Hamburger", emoji: "🍔" },
-  { name: "Chè", nameEn: "Vietnamese Sweet Soup", meal: ["latenight"], price: "re", category: "trang-mieng", spicy: false, keywords: ["che"], wiki: "Chè (ẩm thực)", emoji: "🍧" },
-  { name: "Sữa chua", nameEn: "Yogurt", meal: ["latenight"], price: "re", category: "trang-mieng", spicy: false, keywords: ["sua chua", "yaourt"], wiki: "Sữa chua", emoji: "🍦" },
-  { name: "Bánh flan", nameEn: "Caramel Custard", meal: ["latenight"], price: "re", category: "trang-mieng", spicy: false, keywords: ["banh flan", "creme caramel"], wiki: "Bánh flan", emoji: "🍮" },
-  { name: "Kem", nameEn: "Ice Cream", meal: ["latenight"], price: "re", category: "trang-mieng", spicy: false, keywords: ["kem", "ice cream"], wiki: null, image: "https://live.staticflickr.com/4434/36511673714_1566b87d4e.jpg", emoji: "🍦" },
-  { name: "Sinh tố", nameEn: "Fruit Smoothie", meal: ["breakfast", "lunch"], price: "re", category: "do-uong", spicy: false, keywords: ["sinh to", "smoothie"], wiki: null, image: "https://live.staticflickr.com/7046/6845327756_d8a77a49d4.jpg", emoji: "🥤" },
-  { name: "Trà sữa", nameEn: "Milk Tea", meal: ["latenight"], price: "re", category: "do-uong", spicy: false, keywords: ["tra sua", "milk tea"], wiki: "Trà sữa", emoji: "🧋" },
-  { name: "Trà chanh", nameEn: "Iced Lemon Tea", meal: ["latenight"], price: "re", category: "do-uong", spicy: false, keywords: ["tra chanh"], wiki: null, image: "https://live.staticflickr.com/4290/34606710944_dc57026556_b.jpg", emoji: "🍋" },
-  { name: "Cà phê", nameEn: "Vietnamese Coffee", meal: ["breakfast"], price: "re", category: "do-uong", spicy: false, keywords: ["ca phe", "coffee"], wiki: "Cà phê", emoji: "☕" },
-  { name: "Bánh tráng trộn", nameEn: "Mixed Rice Paper Salad", meal: ["latenight"], price: "re", category: "an-vat", spicy: true, keywords: ["banh trang tron"], wiki: "Bánh tráng trộn", emoji: "🌯" },
-  { name: "Vịt quay / Heo quay", nameEn: "Roast Duck / Roast Pork", meal: ["lunch", "dinner"], price: "vua", category: "nuong", spicy: false, keywords: ["vit quay", "heo quay"], wiki: "Heo quay", emoji: "🍗" },
+  // ===== MÓN NƯỚC (phở/bún/mì/miến/cháo/súp/bánh canh) =====
+  { name: "Phở bò", nameEn: "Beef Pho", meal: ["breakfast", "lunch", "dinner"], minPrice: 40000, maxPrice: 70000, category: "nuoc", spicy: false, tags: ["Việt Nam"], keywords: ["pho"], wiki: "Phở", emoji: "🍜" },
+  { name: "Bún bò Huế", nameEn: "Hue Beef Vermicelli Soup", meal: ["breakfast", "lunch"], minPrice: 35000, maxPrice: 60000, category: "nuoc", spicy: true, tags: ["Việt Nam", "Huế"], keywords: ["bun bo"], wiki: "Bún bò Huế", emoji: "🍲" },
+  { name: "Bún chả", nameEn: "Grilled Pork with Vermicelli", meal: ["lunch"], minPrice: 35000, maxPrice: 60000, category: "nuoc", spicy: false, tags: ["Việt Nam", "Hà Nội"], keywords: ["bun cha"], wiki: "Bún chả", emoji: "🍢" },
+  { name: "Bún riêu", nameEn: "Crab & Tomato Vermicelli Soup", meal: ["breakfast", "lunch"], minPrice: 30000, maxPrice: 50000, category: "nuoc", spicy: false, tags: ["Việt Nam"], keywords: ["bun rieu"], wiki: "Bún riêu", emoji: "🍲" },
+  { name: "Bún đậu mắm tôm", nameEn: "Vermicelli with Tofu & Shrimp Paste", meal: ["lunch", "dinner"], minPrice: 40000, maxPrice: 70000, category: "nuoc", spicy: false, tags: ["Việt Nam"], keywords: ["bun dau"], wiki: "Bún đậu mắm tôm", emoji: "🍚" },
+  { name: "Bún mắm", nameEn: "Fermented Fish Vermicelli Soup", meal: ["lunch", "dinner"], minPrice: 40000, maxPrice: 65000, category: "nuoc", spicy: true, tags: ["Việt Nam", "Miền Tây"], keywords: ["bun mam"], wiki: "Bún mắm", emoji: "🍜" },
+  { name: "Bún ốc", nameEn: "Snail Vermicelli Soup", meal: ["breakfast", "lunch"], minPrice: 30000, maxPrice: 55000, category: "nuoc", spicy: true, tags: ["Việt Nam", "Hà Nội"], keywords: ["bun oc"], wiki: "Bún ốc", emoji: "🍜" },
+  { name: "Bún cá", nameEn: "Fish Vermicelli Soup", meal: ["breakfast", "lunch"], minPrice: 30000, maxPrice: 50000, category: "nuoc", spicy: false, tags: ["Việt Nam"], keywords: ["bun ca"], wiki: "Bún cá", emoji: "🍜" },
+  { name: "Hủ tiếu", nameEn: "Southern-style Noodle Soup", meal: ["breakfast", "lunch"], minPrice: 30000, maxPrice: 55000, category: "nuoc", spicy: false, tags: ["Việt Nam", "Nam Bộ"], keywords: ["hu tieu"], wiki: "Hủ tiếu", emoji: "🍜" },
+  { name: "Mì Quảng", nameEn: "Quang-style Turmeric Noodles", meal: ["lunch", "dinner"], minPrice: 35000, maxPrice: 60000, category: "nuoc", spicy: false, tags: ["Việt Nam", "Quảng Nam"], keywords: ["mi quang"], wiki: "Mì Quảng", emoji: "🍜" },
+  { name: "Mì cay", nameEn: "Korean Spicy Noodles", meal: ["lunch", "dinner"], minPrice: 45000, maxPrice: 80000, category: "nuoc", spicy: true, tags: ["Hàn Quốc"], keywords: ["mi cay"], wiki: null, image: "https://commons.wikimedia.org/wiki/Special:FilePath/M%C3%AC_cay_c%E1%BA%A5p_%C4%91%E1%BB%99_2_-_Mirace.jpg?width=800", emoji: "🌶️" },
+  { name: "Cháo lòng", nameEn: "Rice Porridge with Pork Offal", meal: ["breakfast", "latenight"], minPrice: 25000, maxPrice: 45000, category: "nuoc", spicy: false, tags: ["Việt Nam"], keywords: ["chao long"], wiki: "Cháo lòng", emoji: "🥣" },
+  { name: "Súp cua", nameEn: "Crab Soup", meal: ["breakfast", "lunch"], minPrice: 20000, maxPrice: 35000, category: "nuoc", spicy: false, tags: ["Việt Nam"], keywords: ["sup cua"], wiki: "Súp cua", emoji: "🥣" },
+  { name: "Bánh canh", nameEn: "Thick Noodle Soup", meal: ["breakfast", "lunch"], minPrice: 30000, maxPrice: 50000, category: "nuoc", spicy: false, tags: ["Việt Nam"], keywords: ["banh canh"], wiki: "Bánh canh", emoji: "🍲" },
+  { name: "Bún thịt nướng", nameEn: "Grilled Pork with Vermicelli & Herbs", meal: ["lunch", "dinner"], minPrice: 35000, maxPrice: 55000, category: "nuoc", spicy: false, tags: ["Việt Nam"], keywords: ["bun thit nuong"], wiki: "Bún thịt nướng", emoji: "🍜" },
+  { name: "Phở gà", nameEn: "Chicken Pho", meal: ["breakfast", "lunch", "dinner"], minPrice: 35000, maxPrice: 60000, category: "nuoc", spicy: false, tags: ["Việt Nam"], keywords: ["pho ga"], wiki: "Phở gà", emoji: "🍜" },
+  { name: "Phở xào", nameEn: "Stir-fried Pho Noodles", meal: ["lunch", "dinner"], minPrice: 35000, maxPrice: 60000, category: "nuoc", spicy: false, tags: ["Việt Nam"], keywords: ["pho xao"], wiki: "Phở xào", emoji: "🍜" },
+  { name: "Bún mọc", nameEn: "Pork Meatball Vermicelli Soup", meal: ["breakfast", "lunch"], minPrice: 30000, maxPrice: 50000, category: "nuoc", spicy: false, tags: ["Việt Nam"], keywords: ["bun moc"], wiki: "Bún mọc", emoji: "🍲" },
+  { name: "Bún sườn", nameEn: "Pork Rib Vermicelli Soup", meal: ["breakfast", "lunch"], minPrice: 30000, maxPrice: 50000, category: "nuoc", spicy: false, tags: ["Việt Nam"], keywords: ["bun suon"], wiki: null, image: "https://commons.wikimedia.org/wiki/Special:FilePath/B%C3%BAn_m%E1%BB%8Dc_s%C6%B0%E1%BB%9Dn_non_(th%C3%A1ng_8_n%C4%83m_2018)_(1).jpg?width=800", emoji: "🍲" },
+  { name: "Bún ngan", nameEn: "Muscovy Duck Vermicelli Soup", meal: ["breakfast", "lunch"], minPrice: 35000, maxPrice: 60000, category: "nuoc", spicy: false, tags: ["Việt Nam"], keywords: ["bun ngan"], wiki: "Bún ngan", emoji: "🍜" },
+  { name: "Bún dọc mùng", nameEn: "Taro Stem Vermicelli Soup", meal: ["breakfast", "lunch"], minPrice: 30000, maxPrice: 50000, category: "nuoc", spicy: false, tags: ["Việt Nam"], keywords: ["bun doc mung"], wiki: null, image: "https://upload.wikimedia.org/wikipedia/commons/1/1a/B%C3%BAn_m%E1%BB%8Dc_s%C6%B0%E1%BB%9Dn.jpg", emoji: "🍲" },
+  { name: "Miến gà", nameEn: "Chicken Glass Noodle Soup", meal: ["breakfast", "lunch"], minPrice: 30000, maxPrice: 50000, category: "nuoc", spicy: false, tags: ["Việt Nam"], keywords: ["mien ga"], wiki: "Miến gà", emoji: "🍜" },
+  { name: "Miến lươn", nameEn: "Eel Glass Noodle Soup", meal: ["breakfast", "lunch"], minPrice: 40000, maxPrice: 65000, category: "nuoc", spicy: false, tags: ["Việt Nam"], keywords: ["mien luon"], wiki: null, image: "https://commons.wikimedia.org/wiki/Special:FilePath/Mien_luon_Hang_Dieu.JPG?width=800", emoji: "🍜" },
+  { name: "Cháo gà", nameEn: "Chicken Rice Porridge", meal: ["breakfast", "latenight"], minPrice: 25000, maxPrice: 45000, category: "nuoc", spicy: false, tags: ["Việt Nam"], keywords: ["chao ga"], wiki: "Cháo gà", emoji: "🥣" },
+  { name: "Cháo cá", nameEn: "Fish Rice Porridge", meal: ["breakfast", "latenight"], minPrice: 25000, maxPrice: 45000, category: "nuoc", spicy: false, tags: ["Việt Nam"], keywords: ["chao ca"], wiki: null, image: "https://commons.wikimedia.org/wiki/Special:FilePath/Ch%C3%A1o_C%C3%A1_L%C3%B3c,_Ti%E1%BB%81n_Giang.jpg?width=800", emoji: "🥣" },
+  { name: "Bò kho", nameEn: "Vietnamese Beef Stew", meal: ["breakfast", "lunch", "dinner"], minPrice: 40000, maxPrice: 65000, category: "nuoc", spicy: false, tags: ["Việt Nam"], keywords: ["bo kho"], wiki: "Bò kho", emoji: "🍲" },
+  { name: "Súp gà", nameEn: "Chicken Soup", meal: ["breakfast", "lunch"], minPrice: 20000, maxPrice: 35000, category: "nuoc", spicy: false, tags: ["Việt Nam"], keywords: ["sup ga"], wiki: null, emoji: "🍲" },
 
-  { name: "Phở gà", nameEn: "Chicken Pho", meal: ["breakfast", "lunch", "dinner"], price: "re", category: "nuoc", spicy: false, keywords: ["pho ga"], wiki: "Phở gà", emoji: "🍜" },
-  { name: "Phở xào", nameEn: "Stir-fried Pho Noodles", meal: ["lunch", "dinner"], price: "re", category: "nuoc", spicy: false, keywords: ["pho xao"], wiki: "Phở xào", emoji: "🍜" },
-  { name: "Phở cuốn", nameEn: "Pho Roll", meal: ["lunch", "dinner"], price: "re", category: "an-vat", spicy: false, keywords: ["pho cuon"], wiki: "Phở cuốn", emoji: "🌯" },
-  { name: "Bún mọc", nameEn: "Pork Meatball Vermicelli Soup", meal: ["breakfast", "lunch"], price: "re", category: "nuoc", spicy: false, keywords: ["bun moc"], wiki: "Bún mọc", emoji: "🍲" },
-  { name: "Bún sườn", nameEn: "Pork Rib Vermicelli Soup", meal: ["breakfast", "lunch"], price: "re", category: "nuoc", spicy: false, keywords: ["bun suon"], wiki: null, image: "https://commons.wikimedia.org/wiki/Special:FilePath/B%C3%BAn_m%E1%BB%8Dc_s%C6%B0%E1%BB%9Dn_non_(th%C3%A1ng_8_n%C4%83m_2018)_(1).jpg?width=800", emoji: "🍲" },
-  { name: "Bún ngan", nameEn: "Muscovy Duck Vermicelli Soup", meal: ["breakfast", "lunch"], price: "re", category: "nuoc", spicy: false, keywords: ["bun ngan"], wiki: "Bún ngan", emoji: "🍜" },
-  { name: "Bún dọc mùng", nameEn: "Taro Stem Vermicelli Soup", meal: ["breakfast", "lunch"], price: "re", category: "nuoc", spicy: false, keywords: ["bun doc mung"], wiki: null, image: "https://upload.wikimedia.org/wikipedia/commons/1/1a/B%C3%BAn_m%E1%BB%8Dc_s%C6%B0%E1%BB%9Dn.jpg", emoji: "🍲" },
-  { name: "Miến gà", nameEn: "Chicken Glass Noodle Soup", meal: ["breakfast", "lunch"], price: "re", category: "nuoc", spicy: false, keywords: ["mien ga"], wiki: "Miến gà", emoji: "🍜" },
-  { name: "Miến lươn", nameEn: "Eel Glass Noodle Soup", meal: ["breakfast", "lunch"], price: "vua", category: "nuoc", spicy: false, keywords: ["mien luon"], wiki: null, image: "https://commons.wikimedia.org/wiki/Special:FilePath/Mien_luon_Hang_Dieu.JPG?width=800", emoji: "🍜" },
-  { name: "Cháo gà", nameEn: "Chicken Rice Porridge", meal: ["breakfast", "latenight"], price: "re", category: "nuoc", spicy: false, keywords: ["chao ga"], wiki: "Cháo gà", emoji: "🥣" },
-  { name: "Cháo cá", nameEn: "Fish Rice Porridge", meal: ["breakfast", "latenight"], price: "re", category: "nuoc", spicy: false, keywords: ["chao ca"], wiki: null, image: "https://commons.wikimedia.org/wiki/Special:FilePath/Ch%C3%A1o_C%C3%A1_L%C3%B3c,_Ti%E1%BB%81n_Giang.jpg?width=800", emoji: "🥣" },
-  { name: "Bò kho", nameEn: "Vietnamese Beef Stew", meal: ["breakfast", "lunch", "dinner"], price: "vua", category: "nuoc", spicy: false, keywords: ["bo kho"], wiki: "Bò kho", emoji: "🍲" },
-  { name: "Lẩu Thái", nameEn: "Thai Hot Pot", meal: ["dinner"], price: "sang", category: "nuoc", spicy: true, keywords: ["lau thai", "tom yum"], wiki: "Tom yum", emoji: "🍲" },
-  { name: "Lẩu mắm", nameEn: "Fermented Fish Hot Pot", meal: ["dinner"], price: "sang", category: "nuoc", spicy: true, keywords: ["lau mam"], wiki: null, emoji: "🍲" },
-  { name: "Lẩu riêu cua", nameEn: "Crab & Tomato Hot Pot", meal: ["dinner"], price: "sang", category: "nuoc", spicy: false, keywords: ["lau rieu cua"], wiki: null, emoji: "🍲" },
+  // ===== LẨU =====
+  { name: "Lẩu Thái", nameEn: "Thai Hot Pot", meal: ["dinner"], minPrice: 200000, maxPrice: 350000, category: "lau", spicy: true, tags: ["Thái Lan", "Ăn chung"], keywords: ["lau thai", "tom yum"], wiki: "Tom yum", emoji: "🍲" },
+  { name: "Lẩu mắm", nameEn: "Fermented Fish Hot Pot", meal: ["dinner"], minPrice: 200000, maxPrice: 350000, category: "lau", spicy: true, tags: ["Việt Nam", "Ăn chung"], keywords: ["lau mam"], wiki: null, emoji: "🍲" },
+  { name: "Lẩu riêu cua", nameEn: "Crab & Tomato Hot Pot", meal: ["dinner"], minPrice: 200000, maxPrice: 320000, category: "lau", spicy: false, tags: ["Việt Nam", "Ăn chung"], keywords: ["lau rieu cua"], wiki: null, emoji: "🍲" },
+  { name: "Lẩu gà lá é", nameEn: "Chicken Hot Pot with Wild Herbs", meal: ["dinner"], minPrice: 220000, maxPrice: 350000, category: "lau", spicy: true, tags: ["Việt Nam", "Đà Lạt", "Ăn chung"], keywords: ["lau ga la e"], wiki: null, emoji: "🍲" },
+  { name: "Lẩu bò", nameEn: "Beef Hot Pot", meal: ["dinner"], minPrice: 250000, maxPrice: 400000, category: "lau", spicy: false, tags: ["Việt Nam", "Ăn chung"], keywords: ["lau bo"], wiki: null, emoji: "🍲" },
+  { name: "Lẩu ếch măng cay", nameEn: "Spicy Frog Hot Pot", meal: ["dinner"], minPrice: 220000, maxPrice: 350000, category: "lau", spicy: true, tags: ["Việt Nam", "Ăn chung"], keywords: ["lau ech mang cay"], wiki: null, emoji: "🍲" },
+  { name: "Lẩu hải sản", nameEn: "Seafood Hot Pot", meal: ["dinner"], minPrice: 300000, maxPrice: 500000, category: "lau", spicy: false, tags: ["Việt Nam", "Ăn chung"], keywords: ["lau hai san"], wiki: null, emoji: "🍲" },
 
-  { name: "Cơm hến", nameEn: "Baby Clam Rice", meal: ["breakfast", "lunch"], price: "re", category: "com", spicy: true, keywords: ["com hen"], wiki: "Cơm hến", emoji: "🍚" },
-  { name: "Cơm âm phủ", nameEn: "Hue-style Mixed Rice", meal: ["lunch", "dinner"], price: "vua", category: "com", spicy: false, keywords: ["com am phu"], wiki: "Cơm âm phủ", emoji: "🍚" },
-  { name: "Cơm lam", nameEn: "Bamboo Tube Rice", meal: ["lunch", "dinner"], price: "vua", category: "com", spicy: false, keywords: ["com lam"], wiki: "Cơm lam", emoji: "🍚" },
-  { name: "Cơm gà xối mỡ", nameEn: "Crispy Oil-Poached Chicken Rice", meal: ["lunch", "dinner"], price: "re", category: "com", spicy: false, keywords: ["com ga xoi mo"], wiki: null, image: "https://live.staticflickr.com/7228/7345532502_5a4c92c742.jpg", emoji: "🍛" },
-  { name: "Cơm bò lúc lắc", nameEn: "Shaking Beef Rice", meal: ["lunch", "dinner"], price: "vua", category: "com", spicy: false, keywords: ["bo luc lac"], wiki: "Bò lúc lắc", emoji: "🍛" },
-  { name: "Cơm sườn", nameEn: "Grilled Pork Chop Rice", meal: ["breakfast", "lunch", "dinner"], price: "re", category: "com", spicy: false, keywords: ["com suon"], wiki: null, image: "https://upload.wikimedia.org/wikipedia/commons/5/5e/C%C6%A1m_t%E1%BA%A5m_SG_%28c%C6%A1m_s%C6%B0%E1%BB%9Dn%29_ng27th9n2020_%282%29.jpg", emoji: "🍛" },
+  // ===== CƠM =====
+  { name: "Cơm tấm", nameEn: "Broken Rice", meal: ["breakfast", "lunch", "dinner"], minPrice: 30000, maxPrice: 55000, category: "com", spicy: false, tags: ["Việt Nam", "Sài Gòn"], keywords: ["com tam"], wiki: "Cơm tấm", emoji: "🍛" },
+  { name: "Cơm gà", nameEn: "Chicken Rice", meal: ["lunch", "dinner"], minPrice: 35000, maxPrice: 60000, category: "com", spicy: false, tags: ["Việt Nam"], keywords: ["com ga"], wiki: "Cơm gà", emoji: "🍛" },
+  { name: "Cơm chay", nameEn: "Vegetarian Rice", meal: ["lunch", "dinner"], minPrice: 25000, maxPrice: 45000, category: "com", spicy: false, tags: ["Việt Nam", "Chay"], keywords: ["com chay", "chay"], wiki: "Cơm chay", emoji: "🥗" },
+  { name: "Cơm rang", nameEn: "Fried Rice", meal: ["lunch", "dinner", "latenight"], minPrice: 25000, maxPrice: 45000, category: "com", spicy: false, tags: ["Việt Nam"], keywords: ["com rang", "com chien"], wiki: "Cơm rang", emoji: "🍚" },
+  { name: "Cơm niêu", nameEn: "Clay Pot Rice", meal: ["lunch", "dinner"], minPrice: 50000, maxPrice: 90000, category: "com", spicy: false, tags: ["Việt Nam"], keywords: ["com nieu"], wiki: "Cơm niêu", emoji: "🍚" },
+  { name: "Bò né", nameEn: "Sizzling Beef & Egg", meal: ["breakfast"], minPrice: 40000, maxPrice: 70000, category: "com", spicy: false, tags: ["Việt Nam"], keywords: ["bo ne"], wiki: "Bò né", emoji: "🍳" },
+  { name: "Xôi", nameEn: "Sticky Rice", meal: ["breakfast"], minPrice: 15000, maxPrice: 30000, category: "com", spicy: false, tags: ["Việt Nam"], keywords: ["xoi"], wiki: "Xôi", emoji: "🍚" },
+  { name: "Cơm hến", nameEn: "Baby Clam Rice", meal: ["breakfast", "lunch"], minPrice: 20000, maxPrice: 35000, category: "com", spicy: true, tags: ["Việt Nam", "Huế"], keywords: ["com hen"], wiki: "Cơm hến", emoji: "🍚" },
+  { name: "Cơm âm phủ", nameEn: "Hue-style Mixed Rice", meal: ["lunch", "dinner"], minPrice: 40000, maxPrice: 65000, category: "com", spicy: false, tags: ["Việt Nam", "Huế"], keywords: ["com am phu"], wiki: "Cơm âm phủ", emoji: "🍚" },
+  { name: "Cơm lam", nameEn: "Bamboo Tube Rice", meal: ["lunch", "dinner"], minPrice: 35000, maxPrice: 60000, category: "com", spicy: false, tags: ["Việt Nam", "Tây Nguyên"], keywords: ["com lam"], wiki: "Cơm lam", emoji: "🍚" },
+  { name: "Cơm gà xối mỡ", nameEn: "Crispy Oil-Poached Chicken Rice", meal: ["lunch", "dinner"], minPrice: 30000, maxPrice: 55000, category: "com", spicy: false, tags: ["Việt Nam"], keywords: ["com ga xoi mo"], wiki: null, image: "https://live.staticflickr.com/7228/7345532502_5a4c92c742.jpg", emoji: "🍛" },
+  { name: "Cơm bò lúc lắc", nameEn: "Shaking Beef Rice", meal: ["lunch", "dinner"], minPrice: 45000, maxPrice: 80000, category: "com", spicy: false, tags: ["Việt Nam"], keywords: ["bo luc lac"], wiki: "Bò lúc lắc", emoji: "🍛" },
+  { name: "Cơm sườn", nameEn: "Grilled Pork Chop Rice", meal: ["breakfast", "lunch", "dinner"], minPrice: 30000, maxPrice: 50000, category: "com", spicy: false, tags: ["Việt Nam"], keywords: ["com suon"], wiki: null, image: "https://upload.wikimedia.org/wikipedia/commons/5/5e/C%C6%A1m_t%E1%BA%A5m_SG_%28c%C6%A1m_s%C6%B0%E1%BB%9Dn%29_ng27th9n2020_%282%29.jpg", emoji: "🍛" },
 
-  { name: "Bánh đúc", nameEn: "Savory Rice Cake", meal: ["breakfast"], price: "re", category: "banh", spicy: false, keywords: ["banh duc"], wiki: "Bánh đúc", emoji: "🥟" },
-  { name: "Bánh nậm", nameEn: "Flat Steamed Rice Cake", meal: ["breakfast"], price: "re", category: "banh", spicy: false, keywords: ["banh nam"], wiki: "Bánh nậm", emoji: "🥟" },
-  { name: "Bánh ướt", nameEn: "Soft Steamed Rice Sheets", meal: ["breakfast"], price: "re", category: "banh", spicy: false, keywords: ["banh uot"], wiki: "Bánh ướt", emoji: "🥟" },
-  { name: "Bánh tét", nameEn: "Cylindrical Sticky Rice Cake", meal: ["breakfast", "lunch"], price: "re", category: "banh", spicy: false, keywords: ["banh tet"], wiki: "Bánh tét", emoji: "🥟" },
-  { name: "Bánh chưng", nameEn: "Square Sticky Rice Cake", meal: ["breakfast", "lunch"], price: "re", category: "banh", spicy: false, keywords: ["banh chung"], wiki: "Bánh chưng", emoji: "🥟" },
-  { name: "Bánh tôm", nameEn: "Shrimp Fritters", meal: ["lunch", "dinner"], price: "vua", category: "banh", spicy: false, keywords: ["banh tom"], wiki: "Bánh tôm", emoji: "🍤" },
-  { name: "Bánh căn", nameEn: "Mini Rice Pancakes", meal: ["breakfast", "dinner"], price: "re", category: "banh", spicy: false, keywords: ["banh can"], wiki: "Bánh căn", emoji: "🥞" },
-  { name: "Bánh hỏi", nameEn: "Woven Rice Vermicelli", meal: ["breakfast", "lunch"], price: "re", category: "banh", spicy: false, keywords: ["banh hoi"], wiki: "Bánh hỏi", emoji: "🥟" },
-  { name: "Bánh su sê", nameEn: "Tapioca Wedding Cake", meal: ["latenight"], price: "re", category: "trang-mieng", spicy: false, keywords: ["banh su se", "banh phu the"], wiki: "Bánh phu thê", emoji: "🍡" },
-  { name: "Bánh gối", nameEn: "Fried Pillow Dumpling", meal: ["latenight"], price: "re", category: "an-vat", spicy: false, keywords: ["banh goi"], wiki: "Bánh gối", emoji: "🥟" },
+  // ===== BÁNH =====
+  { name: "Bánh mì", nameEn: "Vietnamese Baguette Sandwich", meal: ["breakfast", "latenight"], minPrice: 15000, maxPrice: 30000, category: "banh", spicy: false, tags: ["Việt Nam"], keywords: ["banh mi"], wiki: "Bánh mì", emoji: "🥖" },
+  { name: "Bánh cuốn", nameEn: "Steamed Rice Rolls", meal: ["breakfast"], minPrice: 25000, maxPrice: 45000, category: "banh", spicy: false, tags: ["Việt Nam"], keywords: ["banh cuon"], wiki: "Bánh cuốn", emoji: "🥟" },
+  { name: "Bánh xèo", nameEn: "Sizzling Crepe", meal: ["lunch", "dinner"], minPrice: 40000, maxPrice: 70000, category: "banh", spicy: false, tags: ["Việt Nam"], keywords: ["banh xeo"], wiki: "Bánh xèo", emoji: "🥞" },
+  { name: "Bánh bèo", nameEn: "Steamed Rice Cakes", meal: ["breakfast", "lunch"], minPrice: 20000, maxPrice: 35000, category: "banh", spicy: false, tags: ["Việt Nam", "Huế"], keywords: ["banh beo"], wiki: "Bánh bèo", emoji: "🥟" },
+  { name: "Bánh khọt", nameEn: "Mini Savory Pancakes", meal: ["lunch", "dinner"], minPrice: 30000, maxPrice: 50000, category: "banh", spicy: false, tags: ["Việt Nam", "Vũng Tàu"], keywords: ["banh khot"], wiki: "Bánh khọt", emoji: "🥞" },
+  { name: "Bánh giò", nameEn: "Pyramid Rice Dumpling", meal: ["breakfast"], minPrice: 12000, maxPrice: 20000, category: "banh", spicy: false, tags: ["Việt Nam"], keywords: ["banh gio"], wiki: "Bánh giò", emoji: "🥟" },
+  { name: "Bánh bao", nameEn: "Steamed Bun", meal: ["breakfast"], minPrice: 12000, maxPrice: 25000, category: "banh", spicy: false, tags: ["Việt Nam"], keywords: ["banh bao"], wiki: "Bánh bao", emoji: "🥟" },
+  { name: "Bánh đúc", nameEn: "Savory Rice Cake", meal: ["breakfast"], minPrice: 15000, maxPrice: 30000, category: "banh", spicy: false, tags: ["Việt Nam"], keywords: ["banh duc"], wiki: "Bánh đúc", emoji: "🥟" },
+  { name: "Bánh nậm", nameEn: "Flat Steamed Rice Cake", meal: ["breakfast"], minPrice: 20000, maxPrice: 35000, category: "banh", spicy: false, tags: ["Việt Nam", "Huế"], keywords: ["banh nam"], wiki: "Bánh nậm", emoji: "🥟" },
+  { name: "Bánh ướt", nameEn: "Soft Steamed Rice Sheets", meal: ["breakfast"], minPrice: 20000, maxPrice: 35000, category: "banh", spicy: false, tags: ["Việt Nam"], keywords: ["banh uot"], wiki: "Bánh ướt", emoji: "🥟" },
+  { name: "Bánh tét", nameEn: "Cylindrical Sticky Rice Cake", meal: ["breakfast", "lunch"], minPrice: 15000, maxPrice: 30000, category: "banh", spicy: false, tags: ["Việt Nam"], keywords: ["banh tet"], wiki: "Bánh tét", emoji: "🥟" },
+  { name: "Bánh chưng", nameEn: "Square Sticky Rice Cake", meal: ["breakfast", "lunch"], minPrice: 20000, maxPrice: 35000, category: "banh", spicy: false, tags: ["Việt Nam"], keywords: ["banh chung"], wiki: "Bánh chưng", emoji: "🥟" },
+  { name: "Bánh tôm", nameEn: "Shrimp Fritters", meal: ["lunch", "dinner"], minPrice: 40000, maxPrice: 65000, category: "banh", spicy: false, tags: ["Việt Nam", "Hà Nội"], keywords: ["banh tom"], wiki: "Bánh tôm", emoji: "🍤" },
+  { name: "Bánh căn", nameEn: "Mini Rice Pancakes", meal: ["breakfast", "dinner"], minPrice: 20000, maxPrice: 40000, category: "banh", spicy: false, tags: ["Việt Nam", "Phan Thiết"], keywords: ["banh can"], wiki: "Bánh căn", emoji: "🥞" },
+  { name: "Bánh hỏi", nameEn: "Woven Rice Vermicelli", meal: ["breakfast", "lunch"], minPrice: 30000, maxPrice: 50000, category: "banh", spicy: false, tags: ["Việt Nam"], keywords: ["banh hoi"], wiki: "Bánh hỏi", emoji: "🥟" },
+  { name: "Bánh gối", nameEn: "Fried Pillow Dumpling", meal: ["latenight"], minPrice: 10000, maxPrice: 20000, category: "banh", spicy: false, tags: ["Việt Nam", "Hà Nội"], keywords: ["banh goi"], wiki: "Bánh gối", emoji: "🥟" },
 
-  { name: "Thịt xiên nướng", nameEn: "Grilled Meat Skewers", meal: ["dinner", "latenight"], price: "re", category: "nuong", spicy: false, keywords: ["thit xien nuong", "xien nuong"], wiki: null, image: "https://live.staticflickr.com/7330/9822651966_68b1e0cdaa_b.jpg", emoji: "🍢" },
-  { name: "Cá nướng", nameEn: "Grilled Fish", meal: ["dinner"], price: "vua", category: "nuong", spicy: false, keywords: ["ca nuong"], wiki: null, image: "https://upload.wikimedia.org/wikipedia/commons/f/fa/C%C3%A1_l%C3%B3c_n%C6%B0%E1%BB%9Bng_trui.JPG", emoji: "🐟" },
-  { name: "Tôm nướng", nameEn: "Grilled Shrimp", meal: ["dinner"], price: "vua", category: "nuong", spicy: false, keywords: ["tom nuong"], wiki: null, image: "https://upload.wikimedia.org/wikipedia/commons/1/1f/L%E1%BB%85_h%E1%BB%99i_%E1%BA%A9m_th%E1%BB%B1c_C%E1%BB%ADa_Vi%E1%BB%87t_th4n2023_m%C3%B3n_t%C3%B4m_n%C6%B0%E1%BB%9Bng_C%E1%BB%ADa_Vi%E1%BB%87t_%282%29.jpg", emoji: "🍤" },
-  { name: "Mực nướng", nameEn: "Grilled Squid", meal: ["dinner", "latenight"], price: "vua", category: "nuong", spicy: false, keywords: ["muc nuong"], wiki: null, image: "https://live.staticflickr.com/5056/5439864746_301d25e0d1_b.jpg", emoji: "🦑" },
-  { name: "Sườn nướng", nameEn: "Grilled Pork Ribs", meal: ["lunch", "dinner"], price: "vua", category: "nuong", spicy: false, keywords: ["suon nuong"], wiki: null, image: "https://commons.wikimedia.org/wiki/Special:FilePath/Si%C3%AAu_th%E1%BB%8B_ng2th6n2020_(s%C6%B0%E1%BB%9Dn_n%C6%B0%E1%BB%9Bng_m%E1%BA%ADt_ong)_(3).jpg?width=800", emoji: "🍖" },
-  { name: "Chim cút nướng", nameEn: "Grilled Quail", meal: ["latenight"], price: "vua", category: "nuong", spicy: false, keywords: ["chim cut nuong"], wiki: null, image: "https://live.staticflickr.com/7822/32118333107_0f3e3b72a5_b.jpg", emoji: "🍗" },
+  // ===== THỊT/BBQ (nướng) =====
+  { name: "Nem nướng", nameEn: "Grilled Pork Skewers", meal: ["lunch", "dinner"], minPrice: 45000, maxPrice: 80000, category: "nuong", spicy: false, tags: ["Việt Nam", "Nha Trang"], keywords: ["nem nuong"], wiki: "Nem nướng", emoji: "🍢" },
+  { name: "Đồ nướng", nameEn: "Grilled BBQ", meal: ["dinner", "latenight"], minPrice: 50000, maxPrice: 90000, category: "nuong", spicy: false, tags: ["Việt Nam"], keywords: ["nuong", "bbq"], wiki: "Thịt nướng", emoji: "🍖" },
+  { name: "Chả cá", nameEn: "Turmeric Fish with Dill", meal: ["lunch", "dinner"], minPrice: 60000, maxPrice: 100000, category: "nuong", spicy: false, tags: ["Việt Nam", "Hà Nội"], keywords: ["cha ca"], wiki: "Chả cá Lã Vọng", emoji: "🐟" },
+  { name: "Vịt quay / Heo quay", nameEn: "Roast Duck / Roast Pork", meal: ["lunch", "dinner"], minPrice: 50000, maxPrice: 90000, category: "nuong", spicy: false, tags: ["Việt Nam"], keywords: ["vit quay", "heo quay"], wiki: "Heo quay", emoji: "🍗" },
+  { name: "Thịt xiên nướng", nameEn: "Grilled Meat Skewers", meal: ["dinner", "latenight"], minPrice: 15000, maxPrice: 30000, category: "nuong", spicy: false, tags: ["Việt Nam", "Ăn vặt"], keywords: ["thit xien nuong", "xien nuong"], wiki: null, image: "https://live.staticflickr.com/7330/9822651966_68b1e0cdaa_b.jpg", emoji: "🍢" },
+  { name: "Cá nướng", nameEn: "Grilled Fish", meal: ["dinner"], minPrice: 60000, maxPrice: 100000, category: "nuong", spicy: false, tags: ["Việt Nam"], keywords: ["ca nuong"], wiki: null, image: "https://upload.wikimedia.org/wikipedia/commons/f/fa/C%C3%A1_l%C3%B3c_n%C6%B0%E1%BB%9Bng_trui.JPG", emoji: "🐟" },
+  { name: "Tôm nướng", nameEn: "Grilled Shrimp", meal: ["dinner"], minPrice: 70000, maxPrice: 120000, category: "nuong", spicy: false, tags: ["Việt Nam"], keywords: ["tom nuong"], wiki: null, image: "https://upload.wikimedia.org/wikipedia/commons/1/1f/L%E1%BB%85_h%E1%BB%99i_%E1%BA%A9m_th%E1%BB%B1c_C%E1%BB%ADa_Vi%E1%BB%87t_th4n2023_m%C3%B3n_t%C3%B4m_n%C6%B0%E1%BB%9Bng_C%E1%BB%ADa_Vi%E1%BB%87t_%282%29.jpg", emoji: "🍤" },
+  { name: "Mực nướng", nameEn: "Grilled Squid", meal: ["dinner", "latenight"], minPrice: 60000, maxPrice: 110000, category: "nuong", spicy: false, tags: ["Việt Nam"], keywords: ["muc nuong"], wiki: null, image: "https://live.staticflickr.com/5056/5439864746_301d25e0d1_b.jpg", emoji: "🦑" },
+  { name: "Sườn nướng", nameEn: "Grilled Pork Ribs", meal: ["lunch", "dinner"], minPrice: 50000, maxPrice: 90000, category: "nuong", spicy: false, tags: ["Việt Nam"], keywords: ["suon nuong"], wiki: null, image: "https://commons.wikimedia.org/wiki/Special:FilePath/Si%C3%AAu_th%E1%BB%8B_ng2th6n2020_(s%C6%B0%E1%BB%9Dn_n%C6%B0%E1%BB%9Bng_m%E1%BA%ADt_ong)_(3).jpg?width=800", emoji: "🍖" },
+  { name: "Chim cút nướng", nameEn: "Grilled Quail", meal: ["latenight"], minPrice: 40000, maxPrice: 70000, category: "nuong", spicy: false, tags: ["Việt Nam", "Ăn vặt"], keywords: ["chim cut nuong"], wiki: null, image: "https://live.staticflickr.com/7822/32118333107_0f3e3b72a5_b.jpg", emoji: "🍗" },
+  { name: "Bò nướng lá lốt", nameEn: "Grilled Beef in Betel Leaf", meal: ["lunch", "dinner"], minPrice: 45000, maxPrice: 75000, category: "nuong", spicy: false, tags: ["Việt Nam"], keywords: ["bo nuong la lot"], wiki: "Bò nướng lá lốt", emoji: "🍖" },
+  { name: "Ba chỉ nướng", nameEn: "Grilled Pork Belly", meal: ["lunch", "dinner"], minPrice: 55000, maxPrice: 95000, category: "nuong", spicy: false, tags: ["Việt Nam"], keywords: ["ba chi nuong"], wiki: null, emoji: "🥓" },
+  { name: "Sườn nướng BBQ kiểu Mỹ", nameEn: "American BBQ Ribs", meal: ["dinner"], minPrice: 120000, maxPrice: 220000, category: "nuong", spicy: false, tags: ["Mỹ"], keywords: ["bbq ribs", "suon my"], wiki: null, emoji: "🍖" },
+  { name: "Dê nướng", nameEn: "Grilled Goat", meal: ["dinner"], minPrice: 150000, maxPrice: 280000, category: "nuong", spicy: false, tags: ["Việt Nam", "Ninh Bình"], keywords: ["de nuong"], wiki: null, emoji: "🐐" },
 
-  { name: "Khoai tây chiên", nameEn: "French Fries", meal: ["latenight"], price: "re", category: "chien", spicy: false, keywords: ["khoai tay chien", "fries"], wiki: "Khoai tây chiên", emoji: "🍟" },
-  { name: "Cá viên chiên", nameEn: "Fried Fish Balls", meal: ["latenight"], price: "re", category: "chien", spicy: false, keywords: ["ca vien chien"], wiki: null, image: "https://live.staticflickr.com/197/502873280_20403546e7_b.jpg", emoji: "🍢" },
-  { name: "Trứng cút lộn xào me", nameEn: "Quail Balut in Tamarind Sauce", meal: ["latenight"], price: "re", category: "chien", spicy: false, keywords: ["trung cut", "hot vit lon"], wiki: null, emoji: "🥚" },
+  // ===== GÀ =====
+  { name: "Gà rán", nameEn: "Fried Chicken", meal: ["lunch", "dinner", "latenight"], minPrice: 45000, maxPrice: 90000, category: "ga", spicy: false, tags: ["Fast food"], keywords: ["ga ran", "kfc", "fried chicken"], wiki: "Gà rán", emoji: "🍗" },
+  { name: "Gà nướng mật ong", nameEn: "Honey Grilled Chicken", meal: ["lunch", "dinner"], minPrice: 60000, maxPrice: 100000, category: "ga", spicy: false, tags: ["Việt Nam"], keywords: ["ga nuong mat ong"], wiki: null, emoji: "🍗" },
+  { name: "Cánh gà chiên nước mắm", nameEn: "Fish Sauce Chicken Wings", meal: ["lunch", "dinner"], minPrice: 40000, maxPrice: 65000, category: "ga", spicy: false, tags: ["Việt Nam"], keywords: ["canh ga chien nuoc mam"], wiki: null, emoji: "🍗" },
+  { name: "Gà quay", nameEn: "Roast Chicken", meal: ["lunch", "dinner"], minPrice: 90000, maxPrice: 160000, category: "ga", spicy: false, tags: ["Việt Nam"], keywords: ["ga quay"], wiki: null, emoji: "🍗" },
+  { name: "Ức gà áp chảo", nameEn: "Pan-seared Chicken Breast", meal: ["lunch", "dinner"], minPrice: 40000, maxPrice: 65000, category: "ga", spicy: false, tags: ["Healthy"], keywords: ["uc ga ap chao"], wiki: null, emoji: "🍗" },
+  { name: "Gà nướng sả", nameEn: "Lemongrass Grilled Chicken", meal: ["lunch", "dinner"], minPrice: 55000, maxPrice: 90000, category: "ga", spicy: false, tags: ["Việt Nam"], keywords: ["ga nuong sa"], wiki: null, emoji: "🍗" },
+  { name: "Súp gà nấm", nameEn: "Chicken Mushroom Soup", meal: ["breakfast", "lunch"], minPrice: 20000, maxPrice: 35000, category: "ga", spicy: false, tags: ["Healthy"], keywords: ["sup ga nam"], wiki: null, emoji: "🍲" },
 
-  { name: "Nghêu hấp", nameEn: "Steamed Clams", meal: ["dinner"], price: "vua", category: "hai-san", spicy: false, keywords: ["ngheu hap"], wiki: null, image: "https://upload.wikimedia.org/wikipedia/commons/6/6a/M%C3%B3n_%C4%83n_C%E1%BB%ADa_Vi%E1%BB%87t%2C_T%E1%BA%BFt_2022_%28ngh%C3%AAu_h%E1%BA%A5p_s%E1%BA%A3%2C_d%C4%A9a_ngh%C3%AAu%29_%282a%29.jpg", emoji: "🦪" },
-  { name: "Sò huyết", nameEn: "Blood Cockles", meal: ["dinner"], price: "vua", category: "hai-san", spicy: false, keywords: ["so huyet"], wiki: null, image: "https://upload.wikimedia.org/wikipedia/commons/0/07/S%C3%B2_huy%E1%BA%BFt_rang_me.jpg", emoji: "🦪" },
-  { name: "Ghẹ rang muối", nameEn: "Salt & Pepper Blue Crab", meal: ["dinner"], price: "sang", category: "hai-san", spicy: false, keywords: ["ghe rang muoi"], wiki: null, emoji: "🦀" },
-  { name: "Tôm hùm", nameEn: "Lobster", meal: ["dinner"], price: "sang", category: "hai-san", spicy: false, keywords: ["tom hum", "lobster"], wiki: "Tôm hùm", emoji: "🦞" },
+  // ===== HẢI SẢN =====
+  { name: "Hải sản", nameEn: "Seafood", meal: ["dinner"], minPrice: 150000, maxPrice: 300000, category: "hai-san", spicy: false, tags: ["Việt Nam"], keywords: ["hai san", "seafood"], wiki: "Hải sản", emoji: "🦐" },
+  { name: "Ốc", nameEn: "Snails", meal: ["dinner", "latenight"], minPrice: 50000, maxPrice: 90000, category: "hai-san", spicy: true, tags: ["Việt Nam", "Ăn vặt"], keywords: ["oc"], wiki: "Ốc", emoji: "🐌" },
+  { name: "Nghêu hấp", nameEn: "Steamed Clams", meal: ["dinner"], minPrice: 60000, maxPrice: 100000, category: "hai-san", spicy: false, tags: ["Việt Nam"], keywords: ["ngheu hap"], wiki: null, image: "https://upload.wikimedia.org/wikipedia/commons/6/6a/M%C3%B3n_%C4%83n_C%E1%BB%ADa_Vi%E1%BB%87t%2C_T%E1%BA%BFt_2022_%28ngh%C3%AAu_h%E1%BA%A5p_s%E1%BA%A3%2C_d%C4%A9a_ngh%C3%AAu%29_%282a%29.jpg", emoji: "🦪" },
+  { name: "Sò huyết", nameEn: "Blood Cockles", meal: ["dinner"], minPrice: 70000, maxPrice: 120000, category: "hai-san", spicy: false, tags: ["Việt Nam"], keywords: ["so huyet"], wiki: null, image: "https://upload.wikimedia.org/wikipedia/commons/0/07/S%C3%B2_huy%E1%BA%BFt_rang_me.jpg", emoji: "🦪" },
+  { name: "Ghẹ rang muối", nameEn: "Salt & Pepper Blue Crab", meal: ["dinner"], minPrice: 150000, maxPrice: 280000, category: "hai-san", spicy: false, tags: ["Việt Nam"], keywords: ["ghe rang muoi"], wiki: null, emoji: "🦀" },
+  { name: "Tôm hùm", nameEn: "Lobster", meal: ["dinner"], minPrice: 300000, maxPrice: 600000, category: "hai-san", spicy: false, tags: ["Việt Nam"], keywords: ["tom hum", "lobster"], wiki: "Tôm hùm", emoji: "🦞" },
+  { name: "Cua rang me", nameEn: "Tamarind Crab", meal: ["dinner"], minPrice: 200000, maxPrice: 400000, category: "hai-san", spicy: false, tags: ["Việt Nam"], keywords: ["cua rang me"], wiki: null, emoji: "🦀" },
+  { name: "Tôm hấp nước dừa", nameEn: "Coconut Steamed Shrimp", meal: ["dinner"], minPrice: 100000, maxPrice: 180000, category: "hai-san", spicy: false, tags: ["Việt Nam"], keywords: ["tom hap nuoc dua"], wiki: null, emoji: "🍤" },
+  { name: "Bạch tuộc nướng", nameEn: "Grilled Octopus", meal: ["dinner", "latenight"], minPrice: 60000, maxPrice: 110000, category: "hai-san", spicy: false, tags: ["Việt Nam"], keywords: ["bach tuoc nuong"], wiki: null, emoji: "🐙" },
+  { name: "Hàu nướng mỡ hành", nameEn: "Grilled Oysters with Scallion Oil", meal: ["dinner", "latenight"], minPrice: 80000, maxPrice: 150000, category: "hai-san", spicy: false, tags: ["Việt Nam"], keywords: ["hau nuong mo hanh"], wiki: null, emoji: "🦪" },
+  { name: "Cháo hải sản", nameEn: "Seafood Congee", meal: ["breakfast", "latenight"], minPrice: 35000, maxPrice: 60000, category: "hai-san", spicy: false, tags: ["Việt Nam"], keywords: ["chao hai san"], wiki: null, emoji: "🥣" },
 
-  { name: "Bò bía", nameEn: "Jicama Fresh Rolls", meal: ["latenight"], price: "re", category: "an-vat", spicy: false, keywords: ["bo bia"], wiki: "Bò bía", emoji: "🌯" },
-  { name: "Hột vịt lộn", nameEn: "Balut (Fertilized Duck Egg)", meal: ["latenight"], price: "re", category: "an-vat", spicy: false, keywords: ["hot vit lon", "trung vit lon"], wiki: "Hột vịt lộn", emoji: "🥚" },
-  { name: "Bắp xào", nameEn: "Stir-fried Corn", meal: ["latenight"], price: "re", category: "an-vat", spicy: false, keywords: ["bap xao", "ngo xao"], wiki: null, image: "https://live.staticflickr.com/8374/8539021418_708abd0bba_b.jpg", emoji: "🌽" },
+  // ===== ĂN VẶT =====
+  { name: "Gỏi cuốn", nameEn: "Fresh Spring Rolls", meal: ["lunch", "dinner"], minPrice: 25000, maxPrice: 45000, category: "an-vat", spicy: false, tags: ["Việt Nam"], keywords: ["goi cuon"], wiki: "Gỏi cuốn", emoji: "🥗" },
+  { name: "Chả giò", nameEn: "Fried Spring Rolls", meal: ["lunch", "dinner", "latenight"], minPrice: 25000, maxPrice: 45000, category: "an-vat", spicy: false, tags: ["Việt Nam"], keywords: ["cha gio", "nem ran"], wiki: "Chả giò", emoji: "🥟" },
+  { name: "Nem chua rán", nameEn: "Fried Fermented Pork Rolls", meal: ["latenight"], minPrice: 15000, maxPrice: 30000, category: "an-vat", spicy: false, tags: ["Việt Nam"], keywords: ["nem chua ran"], wiki: "Nem chua rán", emoji: "🍢" },
+  { name: "Xúc xích / Lạp xưởng nướng", nameEn: "Grilled Sausage", meal: ["latenight"], minPrice: 15000, maxPrice: 30000, category: "an-vat", spicy: false, tags: ["Việt Nam"], keywords: ["xuc xich", "lap xuong"], wiki: "Xúc xích", emoji: "🌭" },
+  { name: "Bánh tráng trộn", nameEn: "Mixed Rice Paper Salad", meal: ["latenight"], minPrice: 15000, maxPrice: 30000, category: "an-vat", spicy: true, tags: ["Việt Nam", "Sài Gòn"], keywords: ["banh trang tron"], wiki: "Bánh tráng trộn", emoji: "🌯" },
+  { name: "Phở cuốn", nameEn: "Pho Roll", meal: ["lunch", "dinner"], minPrice: 30000, maxPrice: 55000, category: "an-vat", spicy: false, tags: ["Việt Nam", "Hà Nội"], keywords: ["pho cuon"], wiki: "Phở cuốn", emoji: "🌯" },
+  { name: "Bò bía", nameEn: "Jicama Fresh Rolls", meal: ["latenight"], minPrice: 10000, maxPrice: 20000, category: "an-vat", spicy: false, tags: ["Việt Nam"], keywords: ["bo bia"], wiki: "Bò bía", emoji: "🌯" },
+  { name: "Hột vịt lộn", nameEn: "Balut (Fertilized Duck Egg)", meal: ["latenight"], minPrice: 8000, maxPrice: 15000, category: "an-vat", spicy: false, tags: ["Việt Nam"], keywords: ["hot vit lon", "trung vit lon"], wiki: "Hột vịt lộn", emoji: "🥚" },
+  { name: "Bắp xào", nameEn: "Stir-fried Corn", meal: ["latenight"], minPrice: 15000, maxPrice: 25000, category: "an-vat", spicy: false, tags: ["Việt Nam"], keywords: ["bap xao", "ngo xao"], wiki: null, image: "https://live.staticflickr.com/8374/8539021418_708abd0bba_b.jpg", emoji: "🌽" },
+  { name: "Cá viên chiên", nameEn: "Fried Fish Balls", meal: ["latenight"], minPrice: 10000, maxPrice: 20000, category: "an-vat", spicy: false, tags: ["Ăn vặt"], keywords: ["ca vien chien"], wiki: null, image: "https://live.staticflickr.com/197/502873280_20403546e7_b.jpg", emoji: "🍢" },
+  { name: "Trứng cút lộn xào me", nameEn: "Quail Balut in Tamarind Sauce", meal: ["latenight"], minPrice: 15000, maxPrice: 25000, category: "an-vat", spicy: false, tags: ["Việt Nam"], keywords: ["trung cut", "hot vit lon"], wiki: null, emoji: "🥚" },
 
-  { name: "Chè Thái", nameEn: "Thai-style Mixed Dessert", meal: ["latenight"], price: "re", category: "trang-mieng", spicy: false, keywords: ["che thai"], wiki: null, image: "https://live.staticflickr.com/4590/39380132132_59bd5c1038.jpg", emoji: "🍧" },
-  { name: "Chè khúc bạch", nameEn: "Almond Jelly Dessert", meal: ["latenight"], price: "re", category: "trang-mieng", spicy: false, keywords: ["che khuc bach"], wiki: "Chè khúc bạch", emoji: "🍧" },
-  { name: "Rau câu", nameEn: "Jelly Dessert", meal: ["latenight"], price: "re", category: "trang-mieng", spicy: false, keywords: ["rau cau", "thach"], wiki: null, image: "https://live.staticflickr.com/462/19159916140_892e0fc0c9_b.jpg", emoji: "🍮" },
-  { name: "Tàu hũ nước đường", nameEn: "Sweet Tofu Pudding", meal: ["latenight"], price: "re", category: "trang-mieng", spicy: false, keywords: ["tau hu nuoc duong", "dau hu nuoc duong"], wiki: null, image: "https://live.staticflickr.com/4430/37196200632_7017e4082d_b.jpg", emoji: "🍮" },
-  { name: "Bánh chuối nướng", nameEn: "Baked Banana Cake", meal: ["latenight"], price: "re", category: "trang-mieng", spicy: false, keywords: ["banh chuoi nuong"], wiki: null, image: "https://live.staticflickr.com/4878/45647702202_ed577b13a4_b.jpg", emoji: "🍮" },
+  // ===== CHIÊN/RÁN =====
+  { name: "Khoai tây chiên", nameEn: "French Fries", meal: ["latenight"], minPrice: 15000, maxPrice: 35000, category: "chien", spicy: false, tags: ["Fast food"], keywords: ["khoai tay chien", "fries"], wiki: "Khoai tây chiên", emoji: "🍟" },
+  { name: "Khoai tây lắc phô mai", nameEn: "Cheese Shake Fries", meal: ["latenight"], minPrice: 25000, maxPrice: 45000, category: "chien", spicy: false, tags: ["Fast food"], keywords: ["khoai tay lac pho mai"], wiki: null, emoji: "🧀" },
+  { name: "Nugget gà", nameEn: "Chicken Nuggets", meal: ["latenight"], minPrice: 25000, maxPrice: 45000, category: "chien", spicy: false, tags: ["Fast food"], keywords: ["nugget ga", "chicken nugget"], wiki: null, emoji: "🍗" },
+  { name: "Phô mai que", nameEn: "Mozzarella Sticks", meal: ["latenight"], minPrice: 25000, maxPrice: 45000, category: "chien", spicy: false, tags: ["Fast food"], keywords: ["pho mai que", "mozzarella"], wiki: null, emoji: "🧀" },
 
-  { name: "Nước mía", nameEn: "Sugarcane Juice", meal: ["breakfast", "lunch", "latenight"], price: "re", category: "do-uong", spicy: false, keywords: ["nuoc mia"], wiki: "Nước mía", emoji: "🥤" },
-  { name: "Nước dừa", nameEn: "Coconut Water", meal: ["breakfast", "lunch", "latenight"], price: "re", category: "do-uong", spicy: false, keywords: ["nuoc dua"], wiki: null, image: "https://upload.wikimedia.org/wikipedia/commons/c/c6/Dua-xiem-troc-ben-tre.jpg", emoji: "🥥" },
-  { name: "Nước ép trái cây", nameEn: "Fresh Fruit Juice", meal: ["breakfast", "lunch"], price: "re", category: "do-uong", spicy: false, keywords: ["nuoc ep"], wiki: null, image: "https://upload.wikimedia.org/wikipedia/commons/9/9a/N%C6%B0%E1%BB%9Bc_%C3%A9p_d%C6%B0a_h%E1%BA%A5u_t%E1%BA%A1i_PizzaCompany_Nguy%E1%BB%85n_S%C6%A1n_ng%C3%A0y_31_th%C3%A1ng_3_n%C4%83m_2019_%282%29.jpg", emoji: "🧃" },
-  { name: "Trà đào", nameEn: "Peach Tea", meal: ["latenight"], price: "re", category: "do-uong", spicy: false, keywords: ["tra dao"], wiki: null, image: "https://live.staticflickr.com/3745/20002894698_0fd02c63fa_b.jpg", emoji: "🍑" },
+  // ===== FAST FOOD =====
+  { name: "Hot dog", nameEn: "Hot Dog", meal: ["lunch", "dinner", "latenight"], minPrice: 25000, maxPrice: 45000, category: "fast-food", spicy: false, tags: ["Mỹ", "Fast food"], keywords: ["hot dog"], wiki: "Hot dog", emoji: "🌭" },
+  { name: "Bánh mì que pate", nameEn: "Mini Pate Baguette", meal: ["breakfast", "latenight"], minPrice: 8000, maxPrice: 15000, category: "fast-food", spicy: false, tags: ["Việt Nam", "Hải Phòng"], keywords: ["banh mi que"], wiki: null, emoji: "🥖" },
+  { name: "Xúc xích Đức", nameEn: "German Sausage", meal: ["lunch", "dinner", "latenight"], minPrice: 30000, maxPrice: 55000, category: "fast-food", spicy: false, tags: ["Đức", "Fast food"], keywords: ["xuc xich duc", "bratwurst"], wiki: null, emoji: "🌭" },
+  { name: "Sandwich", nameEn: "Sandwich", meal: ["breakfast", "lunch"], minPrice: 25000, maxPrice: 45000, category: "fast-food", spicy: false, tags: ["Fast food"], keywords: ["sandwich"], wiki: "Sandwich", emoji: "🥪" },
+  { name: "Bánh mì kẹp xúc xích", nameEn: "Corn Dog", meal: ["latenight"], minPrice: 20000, maxPrice: 35000, category: "fast-food", spicy: false, tags: ["Fast food"], keywords: ["corn dog"], wiki: "Corn dog", emoji: "🌭" },
 
-  { name: "Tokbokki", nameEn: "Tteokbokki", meal: ["lunch", "dinner"], price: "vua", category: "quoc-te", spicy: true, keywords: ["tokbokki", "topokki"], wiki: "Tokbokki", emoji: "🍢" },
-  { name: "Kimbap", nameEn: "Kimbap", meal: ["lunch", "dinner"], price: "re", category: "quoc-te", spicy: false, keywords: ["kimbap"], wiki: "Kimbap", emoji: "🍙" },
-  { name: "Taco", nameEn: "Taco", meal: ["lunch", "dinner"], price: "vua", category: "quoc-te", spicy: false, keywords: ["taco"], wiki: "Taco", emoji: "🌮" },
-  { name: "Dimsum", nameEn: "Dim Sum", meal: ["breakfast", "lunch"], price: "vua", category: "quoc-te", spicy: false, keywords: ["dimsum", "diem tam"], wiki: "Dim sum", emoji: "🥟" },
-  { name: "Cà ri", nameEn: "Curry", meal: ["lunch", "dinner"], price: "vua", category: "quoc-te", spicy: false, keywords: ["ca ri", "curry"], wiki: "Cà ri", emoji: "🍛" },
-  { name: "Mì tương đen", nameEn: "Jjajangmyeon (Black Bean Noodles)", meal: ["lunch", "dinner"], price: "vua", category: "quoc-te", spicy: false, keywords: ["jjajangmyeon", "mi tuong den"], wiki: null, emoji: "🍜" }
+  // ===== PIZZA =====
+  { name: "Pizza", nameEn: "Pizza", meal: ["lunch", "dinner"], minPrice: 90000, maxPrice: 180000, category: "pizza", spicy: false, tags: ["Ý"], keywords: ["pizza"], wiki: "Pizza", emoji: "🍕" },
+  { name: "Pizza hải sản", nameEn: "Seafood Pizza", meal: ["lunch", "dinner"], minPrice: 130000, maxPrice: 250000, category: "pizza", spicy: false, tags: ["Ý"], keywords: ["pizza hai san"], wiki: null, emoji: "🍕" },
+  { name: "Pizza phô mai", nameEn: "Cheese Pizza", meal: ["lunch", "dinner"], minPrice: 100000, maxPrice: 190000, category: "pizza", spicy: false, tags: ["Ý"], keywords: ["pizza pho mai"], wiki: null, emoji: "🍕" },
+  { name: "Pizza pepperoni", nameEn: "Pepperoni Pizza", meal: ["lunch", "dinner"], minPrice: 110000, maxPrice: 210000, category: "pizza", spicy: false, tags: ["Ý"], keywords: ["pizza pepperoni"], wiki: null, emoji: "🍕" },
+
+  // ===== BURGER =====
+  { name: "Burger", nameEn: "Burger", meal: ["lunch", "dinner", "latenight"], minPrice: 35000, maxPrice: 65000, category: "burger", spicy: false, tags: ["Mỹ", "Fast food"], keywords: ["burger"], wiki: "Hamburger", emoji: "🍔" },
+  { name: "Burger bò phô mai", nameEn: "Cheeseburger", meal: ["lunch", "dinner", "latenight"], minPrice: 40000, maxPrice: 75000, category: "burger", spicy: false, tags: ["Mỹ", "Fast food"], keywords: ["cheeseburger", "burger pho mai"], wiki: "Cheeseburger", emoji: "🍔" },
+  { name: "Burger gà giòn", nameEn: "Crispy Chicken Burger", meal: ["lunch", "dinner", "latenight"], minPrice: 35000, maxPrice: 65000, category: "burger", spicy: false, tags: ["Fast food"], keywords: ["burger ga"], wiki: null, emoji: "🍔" },
+  { name: "Burger tôm", nameEn: "Shrimp Burger", meal: ["lunch", "dinner"], minPrice: 40000, maxPrice: 70000, category: "burger", spicy: false, tags: ["Fast food"], keywords: ["burger tom"], wiki: null, emoji: "🍔" },
+  { name: "Burger chay", nameEn: "Veggie Burger", meal: ["lunch", "dinner"], minPrice: 40000, maxPrice: 70000, category: "burger", spicy: false, tags: ["Chay", "Healthy"], keywords: ["burger chay", "veggie burger"], wiki: null, emoji: "🍔" },
+
+  // ===== NHẬT =====
+  { name: "Sushi", nameEn: "Sushi", meal: ["lunch", "dinner"], minPrice: 120000, maxPrice: 250000, category: "nhat", spicy: false, tags: ["Nhật Bản"], keywords: ["sushi", "nhat ban", "japanese"], wiki: "Sushi", emoji: "🍣" },
+  { name: "Ramen", nameEn: "Ramen", meal: ["lunch", "dinner"], minPrice: 65000, maxPrice: 110000, category: "nhat", spicy: false, tags: ["Nhật Bản"], keywords: ["ramen"], wiki: "Ramen", emoji: "🍜" },
+  { name: "Udon", nameEn: "Udon", meal: ["lunch", "dinner"], minPrice: 55000, maxPrice: 95000, category: "nhat", spicy: false, tags: ["Nhật Bản"], keywords: ["udon"], wiki: "Udon", emoji: "🍜" },
+  { name: "Mì soba lạnh", nameEn: "Cold Soba Noodles", meal: ["lunch"], minPrice: 55000, maxPrice: 90000, category: "nhat", spicy: false, tags: ["Nhật Bản"], keywords: ["soba"], wiki: "Soba", emoji: "🍜" },
+  { name: "Cơm cà ri Nhật", nameEn: "Japanese Curry Rice", meal: ["lunch", "dinner"], minPrice: 55000, maxPrice: 90000, category: "nhat", spicy: false, tags: ["Nhật Bản"], keywords: ["curry rice", "com cari nhat"], wiki: "Cà ri Nhật Bản", emoji: "🍛" },
+  { name: "Tempura", nameEn: "Tempura", meal: ["lunch", "dinner"], minPrice: 60000, maxPrice: 110000, category: "nhat", spicy: false, tags: ["Nhật Bản"], keywords: ["tempura"], wiki: "Tempura", emoji: "🍤" },
+  { name: "Gà karaage", nameEn: "Karaage Fried Chicken", meal: ["lunch", "dinner"], minPrice: 50000, maxPrice: 85000, category: "nhat", spicy: false, tags: ["Nhật Bản"], keywords: ["karaage"], wiki: "Karaage", emoji: "🍗" },
+  { name: "Onigiri", nameEn: "Onigiri Rice Ball", meal: ["breakfast", "lunch"], minPrice: 15000, maxPrice: 25000, category: "nhat", spicy: false, tags: ["Nhật Bản"], keywords: ["onigiri"], wiki: "Onigiri", emoji: "🍙" },
+  { name: "Gyoza", nameEn: "Gyoza Dumplings", meal: ["lunch", "dinner"], minPrice: 40000, maxPrice: 65000, category: "nhat", spicy: false, tags: ["Nhật Bản"], keywords: ["gyoza"], wiki: "Gyōza", emoji: "🥟" },
+  { name: "Cơm hộp bento", nameEn: "Bento Box", meal: ["lunch", "dinner"], minPrice: 60000, maxPrice: 110000, category: "nhat", spicy: false, tags: ["Nhật Bản"], keywords: ["bento"], wiki: "Bento", emoji: "🍱" },
+  { name: "Cơm lươn nướng", nameEn: "Grilled Eel Rice (Unagi Don)", meal: ["lunch", "dinner"], minPrice: 90000, maxPrice: 160000, category: "nhat", spicy: false, tags: ["Nhật Bản"], keywords: ["unagi don", "com luon nuong"], wiki: "Unagi", emoji: "🍱" },
+  { name: "Takoyaki", nameEn: "Takoyaki Octopus Balls", meal: ["latenight"], minPrice: 35000, maxPrice: 60000, category: "nhat", spicy: false, tags: ["Nhật Bản"], keywords: ["takoyaki"], wiki: "Takoyaki", emoji: "🐙" },
+  { name: "Okonomiyaki", nameEn: "Okonomiyaki Savory Pancake", meal: ["lunch", "dinner"], minPrice: 60000, maxPrice: 100000, category: "nhat", spicy: false, tags: ["Nhật Bản"], keywords: ["okonomiyaki"], wiki: "Okonomiyaki", emoji: "🥞" },
+
+  // ===== HÀN =====
+  { name: "Tokbokki", nameEn: "Tteokbokki", meal: ["lunch", "dinner"], minPrice: 45000, maxPrice: 80000, category: "han", spicy: true, tags: ["Hàn Quốc"], keywords: ["tokbokki", "topokki"], wiki: "Tokbokki", emoji: "🍢" },
+  { name: "Kimbap", nameEn: "Kimbap", meal: ["lunch", "dinner"], minPrice: 25000, maxPrice: 45000, category: "han", spicy: false, tags: ["Hàn Quốc"], keywords: ["kimbap"], wiki: "Kimbap", emoji: "🍙" },
+  { name: "Mì tương đen", nameEn: "Jjajangmyeon (Black Bean Noodles)", meal: ["lunch", "dinner"], minPrice: 55000, maxPrice: 90000, category: "han", spicy: false, tags: ["Hàn Quốc"], keywords: ["jjajangmyeon", "mi tuong den"], wiki: null, emoji: "🍜" },
+  { name: "Bibimbap", nameEn: "Bibimbap (Korean Mixed Rice)", meal: ["lunch", "dinner"], minPrice: 60000, maxPrice: 100000, category: "han", spicy: false, tags: ["Hàn Quốc"], keywords: ["bibimbap", "com tron han quoc"], wiki: "Bibimbap", emoji: "🍚" },
+  { name: "Canh kim chi", nameEn: "Kimchi Jjigae", meal: ["lunch", "dinner"], minPrice: 55000, maxPrice: 90000, category: "han", spicy: true, tags: ["Hàn Quốc"], keywords: ["kimchi jjigae", "canh kim chi"], wiki: "Kimchi jjigae", emoji: "🍲" },
+  { name: "Thịt ba chỉ nướng Hàn Quốc", nameEn: "Samgyeopsal (Korean BBQ Pork Belly)", meal: ["dinner"], minPrice: 150000, maxPrice: 280000, category: "han", spicy: false, tags: ["Hàn Quốc", "Ăn chung"], keywords: ["samgyeopsal"], wiki: "Samgyeopsal", emoji: "🥓" },
+  { name: "Miến trộn Hàn Quốc", nameEn: "Japchae (Glass Noodle Stir-fry)", meal: ["lunch", "dinner"], minPrice: 50000, maxPrice: 85000, category: "han", spicy: false, tags: ["Hàn Quốc"], keywords: ["japchae"], wiki: "Japchae", emoji: "🍜" },
+  { name: "Gà rán Hàn Quốc", nameEn: "Korean Fried Chicken", meal: ["dinner", "latenight"], minPrice: 90000, maxPrice: 160000, category: "han", spicy: false, tags: ["Hàn Quốc"], keywords: ["korean fried chicken", "ga ran han quoc"], wiki: null, emoji: "🍗" },
+  { name: "Canh rong biển", nameEn: "Korean Seaweed Soup", meal: ["breakfast", "lunch"], minPrice: 35000, maxPrice: 60000, category: "han", spicy: false, tags: ["Hàn Quốc"], keywords: ["mieokguk", "canh rong bien"], wiki: null, emoji: "🍲" },
+  { name: "Chả cá Hàn Quốc", nameEn: "Eomuk (Korean Fish Cake)", meal: ["latenight"], minPrice: 15000, maxPrice: 30000, category: "han", spicy: false, tags: ["Hàn Quốc"], keywords: ["eomuk"], wiki: null, emoji: "🍢" },
+
+  // ===== TRUNG/ĐÀI =====
+  { name: "Dimsum", nameEn: "Dim Sum", meal: ["breakfast", "lunch"], minPrice: 60000, maxPrice: 110000, category: "trung-dai", spicy: false, tags: ["Trung Quốc"], keywords: ["dimsum", "diem tam"], wiki: "Dim sum", emoji: "🥟" },
+  { name: "Sủi cảo", nameEn: "Wonton / Xiaolongbao", meal: ["breakfast", "lunch", "dinner"], minPrice: 40000, maxPrice: 70000, category: "trung-dai", spicy: false, tags: ["Trung Quốc"], keywords: ["sui cao", "xiaolongbao"], wiki: "Tiểu long bao", emoji: "🥟" },
+  { name: "Mì vằn thắn", nameEn: "Wonton Noodle Soup", meal: ["breakfast", "lunch"], minPrice: 40000, maxPrice: 65000, category: "trung-dai", spicy: false, tags: ["Trung Quốc", "Hồng Kông"], keywords: ["mi van than", "wonton noodle"], wiki: "Mì hoành thánh", emoji: "🍜" },
+  { name: "Vịt quay Bắc Kinh", nameEn: "Peking Duck", meal: ["dinner"], minPrice: 250000, maxPrice: 450000, category: "trung-dai", spicy: false, tags: ["Trung Quốc", "Ăn chung"], keywords: ["peking duck", "vit quay bac kinh"], wiki: "Vịt quay Bắc Kinh", emoji: "🦆" },
+  { name: "Cơm chiên Dương Châu", nameEn: "Yangzhou Fried Rice", meal: ["lunch", "dinner"], minPrice: 45000, maxPrice: 75000, category: "trung-dai", spicy: false, tags: ["Trung Quốc"], keywords: ["com chien duong chau", "yangzhou fried rice"], wiki: "Cơm chiên Dương Châu", emoji: "🍚" },
+  { name: "Há cảo", nameEn: "Har Gow (Shrimp Dumpling)", meal: ["breakfast", "lunch"], minPrice: 35000, maxPrice: 60000, category: "trung-dai", spicy: false, tags: ["Trung Quốc"], keywords: ["ha cao", "har gow"], wiki: "Há cảo", emoji: "🥟" },
+  { name: "Cháo Hồng Kông", nameEn: "Century Egg Congee", meal: ["breakfast", "latenight"], minPrice: 30000, maxPrice: 50000, category: "trung-dai", spicy: false, tags: ["Trung Quốc", "Hồng Kông"], keywords: ["chao hong kong", "century egg congee"], wiki: null, emoji: "🥣" },
+
+  // ===== HEALTHY =====
+  { name: "Salad rau trộn dầu giấm", nameEn: "Garden Salad", meal: ["lunch", "dinner"], minPrice: 35000, maxPrice: 60000, category: "healthy", spicy: false, tags: ["Healthy", "Chay"], keywords: ["salad", "rau tron"], wiki: "Salad", emoji: "🥗" },
+  { name: "Cơm gạo lứt ức gà", nameEn: "Brown Rice Chicken Bowl", meal: ["lunch", "dinner"], minPrice: 45000, maxPrice: 70000, category: "healthy", spicy: false, tags: ["Healthy"], keywords: ["gao lut uc ga", "com gao lut"], wiki: null, emoji: "🍚" },
+  { name: "Poke bowl cá hồi", nameEn: "Salmon Poke Bowl", meal: ["lunch", "dinner"], minPrice: 80000, maxPrice: 140000, category: "healthy", spicy: false, tags: ["Healthy", "Hawaii"], keywords: ["poke bowl", "ca hoi"], wiki: "Poke (dish)", emoji: "🥗" },
+  { name: "Súp rau củ", nameEn: "Vegetable Soup", meal: ["lunch", "dinner"], minPrice: 25000, maxPrice: 45000, category: "healthy", spicy: false, tags: ["Healthy", "Chay"], keywords: ["sup rau cu"], wiki: null, emoji: "🍲" },
+  { name: "Bánh mì nguyên cám kẹp", nameEn: "Whole Wheat Sandwich", meal: ["breakfast", "lunch"], minPrice: 30000, maxPrice: 50000, category: "healthy", spicy: false, tags: ["Healthy"], keywords: ["banh mi nguyen cam"], wiki: null, emoji: "🥪" },
+  { name: "Sữa chua granola", nameEn: "Yogurt Granola Bowl", meal: ["breakfast"], minPrice: 30000, maxPrice: 50000, category: "healthy", spicy: false, tags: ["Healthy"], keywords: ["yogurt granola", "sua chua granola"], wiki: null, emoji: "🥣" },
+  { name: "Đậu hũ sốt cà", nameEn: "Tofu in Tomato Sauce", meal: ["lunch", "dinner"], minPrice: 25000, maxPrice: 40000, category: "healthy", spicy: false, tags: ["Healthy", "Chay"], keywords: ["dau hu sot ca"], wiki: null, emoji: "🍅" },
+  { name: "Cá hồi áp chảo", nameEn: "Pan-seared Salmon", meal: ["lunch", "dinner"], minPrice: 100000, maxPrice: 180000, category: "healthy", spicy: false, tags: ["Healthy"], keywords: ["ca hoi ap chao", "salmon"], wiki: null, emoji: "🐟" },
+  { name: "Yến mạch trái cây", nameEn: "Fruit Oatmeal", meal: ["breakfast"], minPrice: 25000, maxPrice: 45000, category: "healthy", spicy: false, tags: ["Healthy"], keywords: ["yen mach", "oatmeal"], wiki: "Yến mạch", emoji: "🥣" },
+
+  // ===== TRÁNG MIỆNG (DESSERT) =====
+  { name: "Chè", nameEn: "Vietnamese Sweet Soup", meal: ["latenight"], minPrice: 12000, maxPrice: 25000, category: "trang-mieng", spicy: false, tags: ["Việt Nam"], keywords: ["che"], wiki: "Chè (ẩm thực)", emoji: "🍧" },
+  { name: "Sữa chua", nameEn: "Yogurt", meal: ["latenight"], minPrice: 8000, maxPrice: 15000, category: "trang-mieng", spicy: false, tags: ["Việt Nam"], keywords: ["sua chua", "yaourt"], wiki: "Sữa chua", emoji: "🍦" },
+  { name: "Bánh flan", nameEn: "Caramel Custard", meal: ["latenight"], minPrice: 10000, maxPrice: 20000, category: "trang-mieng", spicy: false, tags: ["Việt Nam"], keywords: ["banh flan", "creme caramel"], wiki: "Bánh flan", emoji: "🍮" },
+  { name: "Kem", nameEn: "Ice Cream", meal: ["latenight"], minPrice: 10000, maxPrice: 25000, category: "trang-mieng", spicy: false, tags: ["Việt Nam"], keywords: ["kem", "ice cream"], wiki: null, image: "https://live.staticflickr.com/4434/36511673714_1566b87d4e.jpg", emoji: "🍦" },
+  { name: "Bánh su sê", nameEn: "Tapioca Wedding Cake", meal: ["latenight"], minPrice: 10000, maxPrice: 20000, category: "trang-mieng", spicy: false, tags: ["Việt Nam"], keywords: ["banh su se", "banh phu the"], wiki: "Bánh phu thê", emoji: "🍡" },
+  { name: "Chè Thái", nameEn: "Thai-style Mixed Dessert", meal: ["latenight"], minPrice: 20000, maxPrice: 35000, category: "trang-mieng", spicy: false, tags: ["Thái Lan"], keywords: ["che thai"], wiki: null, image: "https://live.staticflickr.com/4590/39380132132_59bd5c1038.jpg", emoji: "🍧" },
+  { name: "Chè khúc bạch", nameEn: "Almond Jelly Dessert", meal: ["latenight"], minPrice: 20000, maxPrice: 35000, category: "trang-mieng", spicy: false, tags: ["Việt Nam"], keywords: ["che khuc bach"], wiki: "Chè khúc bạch", emoji: "🍧" },
+  { name: "Rau câu", nameEn: "Jelly Dessert", meal: ["latenight"], minPrice: 8000, maxPrice: 15000, category: "trang-mieng", spicy: false, tags: ["Việt Nam"], keywords: ["rau cau", "thach"], wiki: null, image: "https://live.staticflickr.com/462/19159916140_892e0fc0c9_b.jpg", emoji: "🍮" },
+  { name: "Tàu hũ nước đường", nameEn: "Sweet Tofu Pudding", meal: ["latenight"], minPrice: 10000, maxPrice: 18000, category: "trang-mieng", spicy: false, tags: ["Việt Nam"], keywords: ["tau hu nuoc duong", "dau hu nuoc duong"], wiki: null, image: "https://live.staticflickr.com/4430/37196200632_7017e4082d_b.jpg", emoji: "🍮" },
+  { name: "Bánh chuối nướng", nameEn: "Baked Banana Cake", meal: ["latenight"], minPrice: 12000, maxPrice: 22000, category: "trang-mieng", spicy: false, tags: ["Việt Nam"], keywords: ["banh chuoi nuong"], wiki: null, image: "https://live.staticflickr.com/4878/45647702202_ed577b13a4_b.jpg", emoji: "🍮" },
+
+  // ===== ĐỒ UỐNG =====
+  { name: "Sinh tố", nameEn: "Fruit Smoothie", meal: ["breakfast", "lunch"], minPrice: 20000, maxPrice: 35000, category: "do-uong", spicy: false, tags: ["Việt Nam"], keywords: ["sinh to", "smoothie"], wiki: null, image: "https://live.staticflickr.com/7046/6845327756_d8a77a49d4.jpg", emoji: "🥤" },
+  { name: "Trà sữa", nameEn: "Milk Tea", meal: ["latenight"], minPrice: 25000, maxPrice: 45000, category: "do-uong", spicy: false, tags: ["Đài Loan"], keywords: ["tra sua", "milk tea"], wiki: "Trà sữa", emoji: "🧋" },
+  { name: "Trà chanh", nameEn: "Iced Lemon Tea", meal: ["latenight"], minPrice: 10000, maxPrice: 20000, category: "do-uong", spicy: false, tags: ["Việt Nam"], keywords: ["tra chanh"], wiki: null, image: "https://live.staticflickr.com/4290/34606710944_dc57026556_b.jpg", emoji: "🍋" },
+  { name: "Cà phê", nameEn: "Vietnamese Coffee", meal: ["breakfast"], minPrice: 15000, maxPrice: 30000, category: "do-uong", spicy: false, tags: ["Việt Nam"], keywords: ["ca phe", "coffee"], wiki: "Cà phê", emoji: "☕" },
+  { name: "Nước mía", nameEn: "Sugarcane Juice", meal: ["breakfast", "lunch", "latenight"], minPrice: 10000, maxPrice: 18000, category: "do-uong", spicy: false, tags: ["Việt Nam"], keywords: ["nuoc mia"], wiki: "Nước mía", emoji: "🥤" },
+  { name: "Nước dừa", nameEn: "Coconut Water", meal: ["breakfast", "lunch", "latenight"], minPrice: 15000, maxPrice: 25000, category: "do-uong", spicy: false, tags: ["Việt Nam"], keywords: ["nuoc dua"], wiki: null, image: "https://upload.wikimedia.org/wikipedia/commons/c/c6/Dua-xiem-troc-ben-tre.jpg", emoji: "🥥" },
+  { name: "Nước ép trái cây", nameEn: "Fresh Fruit Juice", meal: ["breakfast", "lunch"], minPrice: 20000, maxPrice: 35000, category: "do-uong", spicy: false, tags: ["Việt Nam", "Healthy"], keywords: ["nuoc ep"], wiki: null, image: "https://upload.wikimedia.org/wikipedia/commons/9/9a/N%C6%B0%E1%BB%9Bc_%C3%A9p_d%C6%B0a_h%E1%BA%A5u_t%E1%BA%A1i_PizzaCompany_Nguy%E1%BB%85n_S%C6%A1n_ng%C3%A0y_31_th%C3%A1ng_3_n%C4%83m_2019_%282%29.jpg", emoji: "🧃" },
+  { name: "Trà đào", nameEn: "Peach Tea", meal: ["latenight"], minPrice: 20000, maxPrice: 35000, category: "do-uong", spicy: false, tags: ["Việt Nam"], keywords: ["tra dao"], wiki: null, image: "https://live.staticflickr.com/3745/20002894698_0fd02c63fa_b.jpg", emoji: "🍑" },
+
+  // ===== QUỐC TẾ KHÁC =====
+  { name: "Mì Ý", nameEn: "Spaghetti", meal: ["lunch", "dinner"], minPrice: 55000, maxPrice: 100000, category: "quoc-te", spicy: false, tags: ["Ý"], keywords: ["pasta", "spaghetti", "y"], wiki: "Mì Ý", emoji: "🍝" },
+  { name: "Cà ri", nameEn: "Curry", meal: ["lunch", "dinner"], minPrice: 45000, maxPrice: 80000, category: "quoc-te", spicy: false, tags: ["Ấn Độ", "Thái Lan"], keywords: ["ca ri", "curry"], wiki: "Cà ri", emoji: "🍛" },
+  { name: "Taco", nameEn: "Taco", meal: ["lunch", "dinner"], minPrice: 40000, maxPrice: 70000, category: "quoc-te", spicy: false, tags: ["Mexico"], keywords: ["taco"], wiki: "Taco", emoji: "🌮" },
 ];
 
 const FOOD_NO_ANNOTATE = new Set(["Pizza", "Sushi", "Burger", "Tokbokki", "Kimbap", "Taco", "Dimsum"]);
@@ -142,28 +237,46 @@ function displayFoodNameByCanonical(canonicalName) {
 
 const CATEGORY_LABELS = {
   vi: {
-    nuoc: "🍜 Món nước",
+    nuoc: "🍜 Phở/Bún/Mì",
     com: "🍚 Cơm",
     banh: "🥟 Bánh",
-    nuong: "🍖 Nướng/BBQ",
-    chien: "🍗 Chiên/Rán",
+    nuong: "🍖 Thịt/BBQ",
+    ga: "🍗 Gà",
+    lau: "🍲 Lẩu",
     "hai-san": "🦐 Hải sản",
     "an-vat": "🌯 Ăn vặt",
-    "trang-mieng": "🍧 Tráng miệng",
+    chien: "🍗 Chiên/Rán",
+    "fast-food": "🍟 Fast food",
+    pizza: "🍕 Pizza",
+    burger: "🍔 Burger",
+    nhat: "🍣 Nhật",
+    han: "🇰🇷 Hàn",
+    "trung-dai": "🥟 Trung/Đài",
+    healthy: "🥗 Healthy",
+    "trang-mieng": "🍧 Dessert",
     "do-uong": "🧋 Đồ uống",
-    "quoc-te": "🍕 Món Âu/Á"
+    "quoc-te": "🌍 Quốc tế khác"
   },
   en: {
-    nuoc: "🍜 Soups & noodles",
+    nuoc: "🍜 Noodles & Pho",
     com: "🍚 Rice",
     banh: "🥟 Bánh (cakes/rolls)",
     nuong: "🍖 Grilled/BBQ",
-    chien: "🍗 Fried",
+    ga: "🍗 Chicken",
+    lau: "🍲 Hot pot",
     "hai-san": "🦐 Seafood",
     "an-vat": "🌯 Street snacks",
+    chien: "🍗 Fried",
+    "fast-food": "🍟 Fast food",
+    pizza: "🍕 Pizza",
+    burger: "🍔 Burger",
+    nhat: "🍣 Japanese",
+    han: "🇰🇷 Korean",
+    "trung-dai": "🥟 Chinese/Taiwanese",
+    healthy: "🥗 Healthy",
     "trang-mieng": "🍧 Dessert",
     "do-uong": "🧋 Drinks",
-    "quoc-te": "🍕 International"
+    "quoc-te": "🌍 Other international"
   }
 };
 
@@ -172,9 +285,32 @@ const MEAL_LABELS = {
   en: { breakfast: "Breakfast", lunch: "Lunch", dinner: "Dinner", latenight: "Late night" }
 };
 const MEAL_ICONS = { breakfast: "☀️", lunch: "🌤️", dinner: "🌙", latenight: "🌃" };
+/* Ngân sách: so khoảng [minPrice,maxPrice] của món với khoảng của bucket, món khớp
+   nếu 2 khoảng CHỒNG LÊN NHAU (không cần khớp tuyệt đối) — vd món 35k-45k vẫn khớp
+   cả bucket "≤40k" lẫn "40k-70k". Thay cho hệ 3 tier (re/vua/sang) cũ, thô hơn nhiều. */
+const BUDGET_BUCKETS = {
+  any: { min: 0, max: Infinity },
+  le40: { min: 0, max: 40000 },
+  b40_70: { min: 40000, max: 70000 },
+  b70_100: { min: 70000, max: 100000 },
+  gt100: { min: 100000, max: Infinity }
+};
+function matchesBudget(food, bucketKey) {
+  if (bucketKey === "any") return true;
+  const b = BUDGET_BUCKETS[bucketKey];
+  if (!b) return true;
+  return food.minPrice <= b.max && food.maxPrice >= b.min;
+}
+function formatVND(n) {
+  return n.toLocaleString("vi-VN");
+}
+function formatPriceRange(food) {
+  if (food.minPrice === food.maxPrice) return `${formatVND(food.minPrice)}đ`;
+  return `${formatVND(food.minPrice)} – ${formatVND(food.maxPrice)}đ`;
+}
 const PRICE_LABELS = {
-  vi: { re: "₫ Dưới 40K", vua: "₫ 40–100K", sang: "₫ Trên 100K" },
-  en: { re: "₫ Under 40K", vua: "₫ 40–100K", sang: "₫ Over 100K" }
+  vi: { any: "Bất kỳ", le40: "≤40k", b40_70: "40k–70k", b70_100: "70k–100k", gt100: ">100k" },
+  en: { any: "Any", le40: "≤40k", b40_70: "40k–70k", b70_100: "70k–100k", gt100: ">100k" }
 };
 const RADIUS_LABELS = { 500: "500 m", 1000: "1 km", 2000: "2 km", 5000: "5 km" };
 
@@ -200,9 +336,21 @@ const STRINGS = {
     mealLatenight: "Khuya",
     budgetLabel: "Ngân sách",
     priceAny: "Bất kỳ",
-    priceRe: "Dưới 40k",
-    priceVua: "40k – 100k",
-    priceSang: "Trên 100k",
+    priceLe40: "≤40k",
+    priceB4070: "40k–70k",
+    priceB70100: "70k–100k",
+    priceGt100: ">100k",
+    sortLabel: "Sắp xếp",
+    sortRelevant: "⭐ Phù hợp nhất",
+    sortPriceAsc: "💰 Giá thấp → cao",
+    sortPriceDesc: "💰 Giá cao → thấp",
+    browseListBtn: "📋 Xem danh sách món",
+    hideListBtn: "📋 Ẩn danh sách món",
+    randomFavBtn: "🎲 Random từ món yêu thích",
+    noFavYet: "Chưa có món yêu thích nào — bấm 🤍 trên thẻ món để thêm.",
+    eatAgainBtn: "Ăn lại món này",
+    referencePriceNote: "Giá tham khảo, có thể khác theo từng quán",
+    aboutPrefix: "khoảng",
     categoryLabel: "Loại món",
     categoryHint: "(chọn nhiều được)",
     spicyOnly: "🌶️ Chỉ món cay",
@@ -268,9 +416,21 @@ const STRINGS = {
     mealLatenight: "Late night",
     budgetLabel: "Budget",
     priceAny: "Any",
-    priceRe: "Under 40k",
-    priceVua: "40k – 100k",
-    priceSang: "Over 100k",
+    priceLe40: "≤40k",
+    priceB4070: "40k–70k",
+    priceB70100: "70k–100k",
+    priceGt100: ">100k",
+    sortLabel: "Sort",
+    sortRelevant: "⭐ Best match",
+    sortPriceAsc: "💰 Price low → high",
+    sortPriceDesc: "💰 Price high → low",
+    browseListBtn: "📋 Browse dish list",
+    hideListBtn: "📋 Hide dish list",
+    randomFavBtn: "🎲 Random from favorites",
+    noFavYet: "No favorites yet — tap 🤍 on a dish card to add one.",
+    eatAgainBtn: "Eat this again",
+    referencePriceNote: "Reference price, may vary by restaurant",
+    aboutPrefix: "about",
     categoryLabel: "Category",
     categoryHint: "(pick multiple)",
     spicyOnly: "🌶️ Spicy only",
@@ -337,7 +497,8 @@ const STRINGS_FN = {
     noneMatched: (name, radiusLabel) => `Không tìm thấy quán "${name}" phù hợp trong bán kính ${radiusLabel}. Thử tăng bán kính ở thẻ "Vị trí", hoặc đổi món khác.`,
     openUntil: (hhmm) => `Đang mở · đóng lúc ${hhmm}`,
     locationSummary: (label, radiusLabel) => `📍 ${label} · ${radiusLabel}`,
-    notFoundArea: (query) => `Không tìm thấy toạ độ cho "${query}". Thử khu vực khác hoặc nhập địa chỉ cụ thể.`
+    notFoundArea: (query) => `Không tìm thấy toạ độ cho "${query}". Thử khu vực khác hoặc nhập địa chỉ cụ thể.`,
+    dishCount: (n) => (n === 0 ? "Không có món nào khớp bộ lọc hiện tại." : `${n} món khớp bộ lọc hiện tại.`)
   },
   en: {
     daysAgo: (n) => `${n} days ago`,
@@ -354,7 +515,8 @@ const STRINGS_FN = {
     noneMatched: (name, radiusLabel) => `No place serving "${name}" found within ${radiusLabel}. Try a wider radius in "Location", or pick another dish.`,
     openUntil: (hhmm) => `Open now · closes ${hhmm}`,
     locationSummary: (label, radiusLabel) => `📍 ${label} · ${radiusLabel}`,
-    notFoundArea: (query) => `Couldn't find coordinates for "${query}". Try another area or enter a specific address.`
+    notFoundArea: (query) => `Couldn't find coordinates for "${query}". Try another area or enter a specific address.`,
+    dishCount: (n) => (n === 0 ? "No dish matches the current filters." : `${n} dish${n === 1 ? "" : "es"} match the current filters.`)
   }
 };
 
@@ -376,6 +538,7 @@ const state = {
   price: "any",
   categories: new Set(),
   spicyOnly: false,
+  sort: "relevant",
   recentShown: [],
   currentFood: null,
   confirmed: false,
@@ -424,6 +587,8 @@ function applyLanguage() {
   updateBottomBar();
   updateLocationSummary();
   refreshFoodCardText();
+  el.toggleListBtn.textContent = el.dishListPanel.hidden ? t("browseListBtn") : t("hideListBtn");
+  if (!el.dishListPanel.hidden) renderDishList();
 }
 
 const el = {
@@ -451,12 +616,20 @@ const el = {
   spicyChip: document.getElementById("spicyChip"),
   favoritesRow: document.getElementById("favoritesRow"),
   favoritesChips: document.getElementById("favoritesChips"),
+  randomFavBtn: document.getElementById("randomFavBtn"),
+  toggleListBtn: document.getElementById("toggleListBtn"),
+  dishListPanel: document.getElementById("dishListPanel"),
+  sortChips: document.getElementById("sortChips"),
+  dishListStatus: document.getElementById("dishListStatus"),
+  dishList: document.getElementById("dishList"),
   blacklistNote: document.getElementById("blacklistNote"),
   pickCenter: document.getElementById("pickCenter"),
   bottomBarBtn: document.getElementById("bottomBarBtn"),
   foodResult: document.getElementById("foodResult"),
   foodCard: document.getElementById("foodCard"),
+  foodCategory: document.getElementById("foodCategory"),
   foodName: document.getElementById("foodName"),
+  foodPrice: document.getElementById("foodPrice"),
   foodTags: document.getElementById("foodTags"),
   pickNote: document.getElementById("pickNote"),
   favBtn: document.getElementById("favBtn"),
@@ -524,6 +697,15 @@ function renderFavoritesChips() {
   });
 }
 
+el.randomFavBtn.addEventListener("click", () => {
+  const favs = loadJSON(FAVORITES_KEY, []);
+  const candidates = favs.map((name) => FOODS.find((f) => f.name === name)).filter(Boolean);
+  if (candidates.length === 0) return;
+  const chosen = candidates[Math.floor(Math.random() * candidates.length)];
+  renderFoodCard(chosen);
+  el.foodResult.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
 function renderBlacklistNote() {
   const bl = loadJSON(BLACKLIST_KEY, []);
   if (bl.length === 0) {
@@ -552,11 +734,35 @@ function dayLabel(ts) {
 function renderHistory() {
   const history = loadJSON(HISTORY_KEY, []);
   el.historySection.hidden = history.length === 0;
+  const favs = loadJSON(FAVORITES_KEY, []);
   el.historyList.innerHTML = history
-    .slice(-6)
+    .slice(-8)
     .reverse()
-    .map((h) => `<li><span>${dayLabel(h.ts)}</span><strong>${displayFoodNameByCanonical(h.name)}</strong></li>`)
+    .map((h) => {
+      const food = FOODS.find((f) => f.name === h.name);
+      const priceText = food ? `💰 ${formatPriceRange(food)}` : "";
+      const heart = favs.includes(h.name) ? " ❤️" : "";
+      return `
+        <li class="history-item">
+          <div class="history-info">
+            <span class="history-date">${dayLabel(h.ts)}</span>
+            <strong class="history-name">${displayFoodNameByCanonical(h.name)}${heart}</strong>
+            <span class="history-price">${priceText}</span>
+          </div>
+          ${food ? `<button class="link-btn history-again-btn" data-name="${h.name}">${t("eatAgainBtn")}</button>` : ""}
+        </li>
+      `;
+    })
     .join("");
+  el.historyList.querySelectorAll(".history-again-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const food = FOODS.find((f) => f.name === btn.dataset.name);
+      if (food) {
+        renderFoodCard(food);
+        el.foodResult.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
+  });
 }
 
 function logHistory(name) {
@@ -620,15 +826,77 @@ function updateFilterFeasibility() {
 
   el.priceChips.querySelectorAll(".chip").forEach((btn) => {
     const value = btn.dataset.value;
-    const feasible = value === "any" || hardPool.some((f) => f.price === value);
+    const feasible = hardPool.some((f) => matchesBudget(f, value));
     btn.disabled = !feasible;
     btn.classList.toggle("chip-disabled", !feasible);
   });
-  if (state.price !== "any" && !hardPool.some((f) => f.price === state.price)) {
+  if (state.price !== "any" && !hardPool.some((f) => matchesBudget(f, state.price))) {
     state.price = "any";
     setActiveChip(el.priceChips, "any");
   }
+
+  if (!el.dishListPanel.hidden) renderDishList();
 }
+
+/* Danh sách món duyệt được (mục 4-5 yêu cầu nâng cấp): lọc theo đúng bộ lọc hiện tại
+   (Loại món + Cay là hard, Bữa ăn/Ngân sách áp thẳng không cần nới vì đây là xem
+   danh sách chứ không phải random 1 kết quả duy nhất), sắp xếp theo lựa chọn. */
+function getDishListPool() {
+  let pool = getHardPool();
+  if (state.meal !== "auto") pool = pool.filter((f) => f.meal.includes(state.meal));
+  if (state.price !== "any") pool = pool.filter((f) => matchesBudget(f, state.price));
+  return pool;
+}
+
+function renderDishList() {
+  let pool = getDishListPool();
+
+  if (state.sort === "price-asc") {
+    pool = [...pool].sort((a, b) => (a.minPrice + a.maxPrice) - (b.minPrice + b.maxPrice));
+  } else if (state.sort === "price-desc") {
+    pool = [...pool].sort((a, b) => (b.minPrice + b.maxPrice) - (a.minPrice + a.maxPrice));
+  }
+
+  el.dishListStatus.textContent = tf("dishCount", pool.length);
+  el.dishList.innerHTML = pool
+    .map(
+      (f) => `
+        <li>
+          <button class="dish-list-item" data-name="${f.name}">
+            <span class="dish-list-emoji">${f.emoji}</span>
+            <span class="dish-list-info">
+              <span class="dish-list-name">${displayFoodName(f)}</span>
+              <span class="dish-list-meta">${CATEGORY_LABELS[state.lang][f.category] || f.category}</span>
+            </span>
+            <span class="dish-list-price">${formatPriceRange(f)}</span>
+          </button>
+        </li>
+      `
+    )
+    .join("");
+
+  el.dishList.querySelectorAll(".dish-list-item").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const food = FOODS.find((f) => f.name === btn.dataset.name);
+      if (food) {
+        renderFoodCard(food);
+        el.foodResult.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
+  });
+}
+
+el.toggleListBtn.addEventListener("click", () => {
+  const willShow = el.dishListPanel.hidden;
+  el.dishListPanel.hidden = !willShow;
+  el.toggleListBtn.textContent = willShow ? t("hideListBtn") : t("browseListBtn");
+  if (willShow) renderDishList();
+});
+
+wireSingleChipGroup(el.sortChips, (value) => {
+  state.sort = value;
+  renderDishList();
+});
 
 function wireSingleChipGroup(container, onChange) {
   container.querySelectorAll(".chip").forEach((btn) => {
@@ -715,11 +983,11 @@ function pickFood() {
   }
 
   if (state.price !== "any") {
-    const withPrice = pool.filter((f) => f.price === state.price);
+    const withPrice = pool.filter((f) => matchesBudget(f, state.price));
     if (withPrice.length > 0) {
       pool = withPrice;
     } else {
-      const priceOnHardPool = hardPool.filter((f) => f.price === state.price);
+      const priceOnHardPool = hardPool.filter((f) => matchesBudget(f, state.price));
       if (priceOnHardPool.length > 0) {
         pool = priceOnHardPool;
         notes.push(tf("filterPriceRelaxMeal", PRICE_LABELS[state.lang][state.price]));
@@ -787,19 +1055,27 @@ function isFavorite(name) {
   return loadJSON(FAVORITES_KEY, []).includes(name);
 }
 
+/* Dùng chung cho renderFoodCard (chọn món MỚI) và refreshFoodCardText (chỉ đổi ngôn
+   ngữ, giữ nguyên trạng thái đã xác nhận) — tránh viết trùng 2 nơi dễ lệch nhau.
+   Hiện TẤT CẢ các bữa món này hợp (không chỉ bữa hiện tại) để không bao giờ gắn
+   nhãn sai như bug "món sáng nhưng hiện Tối" đã từng gặp. */
+function renderFoodCardContent(food) {
+  el.foodCategory.textContent = `${CATEGORY_LABELS[state.lang][food.category] || food.category}${food.tags && food.tags[0] ? " · " + food.tags[0] : ""}`;
+  el.foodName.textContent = displayFoodName(food);
+  el.foodPrice.textContent = `💰 ${formatPriceRange(food)}`;
+  el.foodTags.innerHTML =
+    food.meal.map((m) => `<span class="tag">${MEAL_ICONS[m]} ${MEAL_LABELS[state.lang][m]}</span>`).join("") +
+    (food.spicy ? `<span class="tag">${t("spicyTag")}</span>` : "");
+  el.favBtn.textContent = isFavorite(food.name) ? "❤️" : "🤍";
+  el.favBtn.classList.toggle("is-active", isFavorite(food.name));
+}
+
 /* Cập nhật lại chữ trên card món đang hiện (khi đổi ngôn ngữ) mà KHÔNG reset trạng thái
    đã xác nhận/đã pick ảnh — khác với renderFoodCard vốn dùng cho việc CHỌN một món mới. */
 function refreshFoodCardText() {
   const food = state.currentFood;
   if (!food) return;
-  el.foodName.textContent = displayFoodName(food);
-  const mealForTag = food.meal.includes(getEffectiveMealTime()) ? getEffectiveMealTime() : food.meal[0];
-  el.foodTags.innerHTML = `
-    <span class="tag">${MEAL_ICONS[mealForTag]} ${MEAL_LABELS[state.lang][mealForTag]}</span>
-    <span class="tag">${PRICE_LABELS[state.lang][food.price]}</span>
-    ${food.spicy ? `<span class="tag">${t("spicyTag")}</span>` : ""}
-  `;
-  el.favBtn.textContent = isFavorite(food.name) ? "❤️" : "🤍";
+  renderFoodCardContent(food);
 }
 
 function renderFoodCard(food, note) {
@@ -809,20 +1085,9 @@ function renderFoodCard(food, note) {
   el.pickCenter.hidden = true;
   el.foodResult.hidden = false;
 
-  el.foodName.textContent = displayFoodName(food);
-  // Chỉ gắn nhãn "bữa" hiện tại nếu món thực sự hợp bữa đó — tránh gắn sai (ví dụ món
-  // sáng nhưng đang random lúc tối do các bộ lọc khác đã được nới) như đã bị phát hiện.
-  const mealForTag = food.meal.includes(getEffectiveMealTime()) ? getEffectiveMealTime() : food.meal[0];
-  el.foodTags.innerHTML = `
-    <span class="tag">${MEAL_ICONS[mealForTag]} ${MEAL_LABELS[state.lang][mealForTag]}</span>
-    <span class="tag">${PRICE_LABELS[state.lang][food.price]}</span>
-    ${food.spicy ? `<span class="tag">${t("spicyTag")}</span>` : ""}
-  `;
+  renderFoodCardContent(food);
   el.pickNote.hidden = !note;
   el.pickNote.textContent = note ? tf("pickNotePrefix", note) : "";
-
-  el.favBtn.textContent = isFavorite(food.name) ? "❤️" : "🤍";
-  el.favBtn.classList.toggle("is-active", isFavorite(food.name));
 
   const wrap = el.foodCard.querySelector(".food-image-wrap");
   wrap.innerHTML = food.emoji;
@@ -839,7 +1104,9 @@ function showThinkingThenPick() {
   el.foodResult.hidden = false;
   el.foodCard.querySelector(".food-image-wrap").innerHTML =
     `<span class="thinking"><span class="spinner"></span>${t("thinking")}</span>`;
+  el.foodCategory.textContent = "";
   el.foodName.textContent = "";
+  el.foodPrice.textContent = "";
   el.foodTags.innerHTML = "";
   el.pickNote.hidden = true;
   state.currentFood = null;
@@ -886,6 +1153,7 @@ el.favBtn.addEventListener("click", () => {
   el.favBtn.textContent = favs.includes(food.name) ? "❤️" : "🤍";
   el.favBtn.classList.toggle("is-active", favs.includes(food.name));
   renderFavoritesChips();
+  renderHistory();
 });
 
 el.banBtn.addEventListener("click", () => {
@@ -1244,17 +1512,22 @@ async function fetchNearbyPlaces(lat, lon, radius) {
 }
 
 function renderPlaceList(listEl, places) {
+  const food = state.currentFood;
   listEl.innerHTML = places
     .map((p) => {
       const mapsDir = `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}`;
       const mapsView = `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lon}`;
       const openPart = p.open ? `<span class="${p.open.status === "open" ? "status-open" : ""}">${p.open.label}</span> · ` : "";
+      // Giá hiện ở đây là giá THAM KHẢO của món (từ dữ liệu FOODS), KHÔNG phải giá
+      // thật của riêng quán này — OSM không có dữ liệu giá theo từng quán, ghi rõ
+      // "khoảng" để không gây hiểu lầm là giá chính xác tại quán đó.
+      const pricePart = p.matched && food ? ` · 💰 ${t("aboutPrefix")} ${formatPriceRange(food)}` : "";
       return `
         <li class="result-item">
           <span class="result-emoji">${p.icon}</span>
           <div class="result-body">
             <p class="result-name">${p.name}${p.matched ? `<span class="badge-match">${t("matchBadge")}</span>` : ""}</p>
-            <p class="result-meta">${openPart}${formatDistance(p.distance)}${p.address ? " · " + p.address : ""}</p>
+            <p class="result-meta">${openPart}${formatDistance(p.distance)}${p.address ? " · " + p.address : ""}${pricePart}</p>
             <div class="result-links">
               <a class="result-link" href="${mapsDir}" target="_blank" rel="noopener">${t("directions")}</a>
               <a class="result-link" href="${mapsView}" target="_blank" rel="noopener">${t("viewOnGoogleMaps")}</a>

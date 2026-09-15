@@ -110,6 +110,10 @@ function buildSandbox() {
     asVar(extract("const CATEGORY_LABELS = {")),
     asVar(extract("const MEAL_LABELS = {")),
     "var MEAL_ICONS = {};", // pickFood không cần icon, tránh phải trích thêm dòng không liên quan
+    asVar(extract("const BUDGET_BUCKETS = {")),
+    extract("function matchesBudget("),
+    extract("function formatVND("),
+    extract("function formatPriceRange("),
     asVar(extract("const PRICE_LABELS = {")),
     asVar(extract("const RADIUS_LABELS = {")),
     asVar(extract("const LANG_KEY =")),
@@ -138,14 +142,46 @@ function buildSandbox() {
   return sandbox;
 }
 
-test("pickFood: tôn trọng Loại món đã chọn kể cả khi xung đột với Bữa ăn/Ngân sách (regression: Nướng/BBQ + Tối + Trên 100k từng ra Lẩu mắm)", () => {
+test("matchesBudget: khớp theo kiểu chồng khoảng (overlap), không cần khớp tuyệt đối bucket", () => {
   const sb = buildSandbox();
-  sb.state.categories.add("nuong");
-  sb.state.price = "sang";
-  sb.state.meal = "dinner";
+  const dish = { minPrice: 35000, maxPrice: 45000 }; // chồng lấn cả le40 lẫn b40_70
+  assert.strictEqual(sb.matchesBudget(dish, "any"), true);
+  assert.strictEqual(sb.matchesBudget(dish, "le40"), true);
+  assert.strictEqual(sb.matchesBudget(dish, "b40_70"), true);
+  assert.strictEqual(sb.matchesBudget(dish, "b70_100"), false);
+  assert.strictEqual(sb.matchesBudget(dish, "gt100"), false);
+});
+
+test("formatPriceRange: hiện đúng 1 giá khi min=max, hiện khoảng khi khác nhau", () => {
+  const sb = buildSandbox();
+  assert.strictEqual(sb.formatPriceRange({ minPrice: 45000, maxPrice: 45000 }), "45.000đ");
+  assert.strictEqual(sb.formatPriceRange({ minPrice: 40000, maxPrice: 70000 }), "40.000 – 70.000đ");
+});
+
+test("pickFood: tôn trọng Loại món đã chọn ngay cả khi tổ hợp với Ngân sách hiện KHÔNG có món nào khớp (audit động — bug gốc: chọn Nướng/BBQ+Trên 100k từng ra Lẩu mắm)", () => {
+  const sb = buildSandbox();
+  // Tự tìm 1 tổ hợp category+bucket hiện đang bất khả thi thay vì hard-code "nuong"+
+  // "gt100" — data giá đã đổi (thêm BBQ Mỹ, Dê nướng...) nên tổ hợp cũ có thể không
+  // còn bất khả thi nữa; audit động để test luôn có ý nghĩa dù data đổi tiếp về sau.
+  const categories = [...new Set(sb.FOODS.map((f) => f.category))];
+  const buckets = ["le40", "b40_70", "b70_100", "gt100"];
+  let found = null;
+  for (const cat of categories) {
+    const items = sb.FOODS.filter((f) => f.category === cat);
+    for (const b of buckets) {
+      if (!items.some((f) => sb.matchesBudget(f, b))) {
+        found = { cat, bucket: b };
+        break;
+      }
+    }
+    if (found) break;
+  }
+  assert.ok(found, "Không tìm thấy tổ hợp category+bucket nào bất khả thi — nếu data đã phủ hết mọi tổ hợp, test này không còn ý nghĩa và có thể bỏ");
+  sb.state.categories.add(found.cat);
+  sb.state.price = found.bucket;
   for (let i = 0; i < 15; i++) {
     const { food } = sb.pickFood();
-    assert.strictEqual(food.category, "nuong", `Chọn "Nướng/BBQ" mà ra món category="${food.category}" (${food.name})`);
+    assert.strictEqual(food.category, found.cat, `Chọn "${found.cat}" (ngân sách "${found.bucket}" đang bất khả thi với nhóm này) nhưng ra món category="${food.category}" (${food.name})`);
   }
 });
 
@@ -208,14 +244,26 @@ test("parseOpeningHours: nhận diện đang mở / đã đóng / 24-7 đúng th
   assert.strictEqual(unsupported, null, "Cú pháp không hỗ trợ phải trả về null (không đoán bừa), không throw");
 });
 
-test("FOODS: mọi món đều có nameEn hợp lệ và không trùng tên", () => {
+test("FOODS: mọi món đều có nameEn/minPrice/maxPrice/category/tags hợp lệ, không trùng tên", () => {
   // Dùng .length thay vì deepStrictEqual với mảng rỗng: FOODS được tạo bên trong vm
   // sandbox (khác realm) nên Array.prototype khác với mảng literal ở file test này —
   // deepStrictEqual sẽ báo sai khác dù nội dung rỗng giống hệt (lệch prototype).
   const sb = buildSandbox();
-  const missing = sb.FOODS.filter((f) => !f.nameEn);
-  assert.strictEqual(missing.length, 0, `Có món thiếu nameEn: ${missing.map((f) => f.name).join(", ")}`);
+  const missing = sb.FOODS.filter((f) => !f.nameEn || !f.category || !Array.isArray(f.tags) || f.tags.length === 0);
+  assert.strictEqual(missing.length, 0, `Có món thiếu nameEn/category/tags: ${missing.map((f) => f.name).join(", ")}`);
+  const badPrice = sb.FOODS.filter((f) => typeof f.minPrice !== "number" || typeof f.maxPrice !== "number" || f.minPrice > f.maxPrice || f.minPrice < 0);
+  assert.strictEqual(badPrice.length, 0, `Có món giá không hợp lệ (thiếu/âm/minPrice>maxPrice): ${badPrice.map((f) => f.name).join(", ")}`);
   const names = sb.FOODS.map((f) => f.name);
   const dupes = names.filter((n, i) => names.indexOf(n) !== i);
   assert.strictEqual(dupes.length, 0, `Có tên món bị trùng: ${dupes.join(", ")}`);
+  assert.ok(sb.FOODS.length >= 100, `Cần tối thiểu 100 món theo yêu cầu, hiện có ${sb.FOODS.length}`);
+});
+
+test("CATEGORY_LABELS: mọi category dùng trong FOODS đều có nhãn hiển thị (vi + en)", () => {
+  const sb = buildSandbox();
+  const usedCats = new Set(sb.FOODS.map((f) => f.category));
+  const missingVi = [...usedCats].filter((c) => !sb.CATEGORY_LABELS.vi[c]);
+  const missingEn = [...usedCats].filter((c) => !sb.CATEGORY_LABELS.en[c]);
+  assert.strictEqual(missingVi.length, 0, `Category dùng trong FOODS nhưng thiếu nhãn vi: ${missingVi.join(", ")}`);
+  assert.strictEqual(missingEn.length, 0, `Category dùng trong FOODS nhưng thiếu nhãn en: ${missingEn.join(", ")}`);
 });

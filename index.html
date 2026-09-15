@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<link rel="stylesheet" href="style.css?v=5">
+<link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
   <div class="app">
@@ -70,9 +70,10 @@
       <p class="filter-label" data-i18n="budgetLabel">Ngân sách</p>
       <div class="chip-group" id="priceChips" data-value="any">
         <button class="chip is-active" data-value="any" data-i18n="priceAny">Bất kỳ</button>
-        <button class="chip" data-value="re" data-i18n="priceRe">Dưới 40k</button>
-        <button class="chip" data-value="vua" data-i18n="priceVua">40k – 100k</button>
-        <button class="chip" data-value="sang" data-i18n="priceSang">Trên 100k</button>
+        <button class="chip" data-value="le40" data-i18n="priceLe40">≤40k</button>
+        <button class="chip" data-value="b40_70" data-i18n="priceB4070">40k–70k</button>
+        <button class="chip" data-value="b70_100" data-i18n="priceB70100">70k–100k</button>
+        <button class="chip" data-value="gt100" data-i18n="priceGt100">&gt;100k</button>
       </div>
 
       <p class="filter-label"><span data-i18n="categoryLabel">Loại món</span> <span class="hint" data-i18n="categoryHint">(chọn nhiều được)</span></p>
@@ -85,6 +86,7 @@
       <div id="favoritesRow" class="favorites-row" hidden>
         <p class="filter-label" data-i18n="favoritesLabel">❤️ Món yêu thích</p>
         <div class="chip-group" id="favoritesChips"></div>
+        <button id="randomFavBtn" class="link-btn" data-i18n="randomFavBtn">🎲 Random từ món yêu thích</button>
       </div>
 
       <p id="blacklistNote" class="status-text link-note" hidden></p>
@@ -105,12 +107,26 @@
             <button id="banBtn" class="icon-btn" title="Không gợi ý món này nữa" data-i18n-title="dontShowAgain" aria-label="Không gợi ý món này nữa" data-i18n-aria="dontShowAgain">🙅</button>
           </div>
           <div class="food-info-overlay">
+            <p class="food-category" id="foodCategory"></p>
             <p class="food-name" id="foodName"></p>
+            <p class="food-price" id="foodPrice"></p>
             <div class="chip-row" id="foodTags"></div>
           </div>
         </div>
         <p id="pickNote" class="pick-note" hidden></p>
         <button id="rerollBtn" class="link-btn reroll-link" data-i18n="rerollBtn">🎲 Gợi ý món khác</button>
+      </div>
+
+      <button id="toggleListBtn" class="link-btn dish-list-toggle">📋 Xem danh sách món</button>
+
+      <div id="dishListPanel" hidden>
+        <div class="chip-group" id="sortChips" data-value="relevant">
+          <button class="chip is-active" data-value="relevant" data-i18n="sortRelevant">⭐ Phù hợp nhất</button>
+          <button class="chip" data-value="price-asc" data-i18n="sortPriceAsc">💰 Giá thấp → cao</button>
+          <button class="chip" data-value="price-desc" data-i18n="sortPriceDesc">💰 Giá cao → thấp</button>
+        </div>
+        <p id="dishListStatus" class="status-text"></p>
+        <ul id="dishList" class="dish-list"></ul>
       </div>
     </section>
 
@@ -189,6 +205,6 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-  <script src="app.js?v=7"></script>
+  <script src="app.js?v=8"></script>
 </body>
 </html>

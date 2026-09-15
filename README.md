@@ -57,13 +57,20 @@ GitHub Pages tự rebuild sau khoảng 30-60 giây.
   khu vực nhỏ/tỉnh lẻ hoặc quán mới mở. Nếu thấy quá ít kết quả, có thể nâng cấp
   sau bằng cách thay bước gọi Overpass API trong `app.js` (hàm `fetchNearbyPlaces`)
   bằng Google Places API — đánh đổi là phải quản lý API key/quota.
-- Không có sao đánh giá, giá tiền/người, hay giờ mở cửa đáng tin cậy 100% — OSM
-  không có 2 mục đầu; giờ mở chỉ hiện khi tag `opening_hours` của quán đủ đơn giản
-  để đọc được, còn lại im lặng thay vì đoán bừa.
+- Không có sao đánh giá, hay giờ mở cửa đáng tin cậy 100% — OSM không có dữ liệu
+  rating; giờ mở chỉ hiện khi tag `opening_hours` của quán đủ đơn giản để đọc được,
+  còn lại im lặng thay vì đoán bừa.
+- **Giá món (`minPrice`/`maxPrice` trong `FOODS`) là giá THAM KHẢO** do tự ước lượng
+  theo mặt bằng chung, không phải giá thật của từng quán cụ thể — khi hiện giá cạnh
+  1 quán gần bạn, luôn ghi "khoảng X" chứ không khẳng định đó là giá tại quán đó
+  (OSM không có dữ liệu giá theo từng quán).
 - Tên Tỉnh/Quận/Phường trong phần chọn khu vực chỉ có tiếng Việt (nguồn dữ liệu
   provinces.open-api.vn chưa có bản tiếng Anh) — kể cả khi bật chế độ EN.
 - Không có tài khoản/đăng nhập, không lưu dữ liệu trên server — mọi thứ (yêu thích,
   món đã ẩn, lịch sử, vị trí + bộ lọc đang chọn, ngôn ngữ) lưu trong `localStorage`
   của trình duyệt, riêng theo từng thiết bị/trình duyệt.
-- Danh sách 116 món ăn (trong `app.js`, biến `FOODS`) là danh sách cố định, tự sửa/
-  thêm món trực tiếp trong code nếu muốn (nhớ thêm cả `nameEn` cho bản tiếng Anh).
+- Danh sách 184 món ăn (trong `app.js`, biến `FOODS`) là danh sách cố định, tự sửa/
+  thêm món trực tiếp trong code nếu muốn (nhớ thêm đủ `nameEn`/`minPrice`/`maxPrice`/
+  `category`/`tags`). Ngân sách lọc theo kiểu "khoảng giá chồng nhau" (`matchesBudget`
+  trong `app.js`) chứ không khớp tuyệt đối 1 mức, nên 1 món có thể khớp nhiều mức
+  ngân sách liền kề nếu khoảng giá của nó trải rộng.
