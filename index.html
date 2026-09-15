@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hôm nay ăn gì?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand-badge">🍜</span>
+        <h1>Hôm nay ăn gì?</h1>
+      </div>
+      <p class="subtitle">Gợi ý món ăn quanh bạn</p>
+    </header>
+
+    <!-- VỊ TRÍ -->
+    <section class="card">
+      <h2>Vị trí</h2>
+
+      <div id="locationSummary" class="location-chip" hidden>
+        <span id="locationSummaryText"></span>
+        <button id="changeLocationBtn" class="link-btn">Đổi</button>
+      </div>
+
+      <div id="locationPicker">
+        <div class="location-modes">
+          <button id="useLocationBtn" class="mode-btn">📍 Dùng vị trí hiện tại</button>
+          <button id="pickRegionModeBtn" class="mode-btn">🗺️ Chọn khu vực</button>
+        </div>
+
+        <div id="regionPanel" class="region-panel" hidden>
+          <div class="region-row">
+            <select id="provinceSelect">
+              <option value="">Tỉnh/Thành phố…</option>
+            </select>
+            <select id="districtSelect" disabled>
+              <option value="">Quận/Huyện…</option>
+            </select>
+            <select id="wardSelect" disabled>
+              <option value="">Phường/Xã…</option>
+            </select>
+          </div>
+
+          <div class="divider"><span>hoặc nhập địa chỉ cụ thể</span></div>
+          <div class="address-row">
+            <input
+              id="addressInput"
+              type="text"
+              placeholder="VD: 123 Nguyễn Huệ, Quận 1"
+              autocomplete="off"
+            />
+          </div>
+          <ul id="addressSuggestions" class="suggestions" hidden></ul>
+
+          <button id="applyRegionBtn" class="btn-primary btn-wide" disabled>Áp dụng vị trí</button>
+        </div>
+
+        <p id="addressStatus" class="status-text"></p>
+      </div>
+
+      <div class="chip-group" id="radiusChips" data-value="1000">
+        <button class="chip" data-value="500">500 m</button>
+        <button class="chip is-active" data-value="1000">1 km</button>
+        <button class="chip" data-value="2000">2 km</button>
+        <button class="chip" data-value="5000">5 km</button>
+      </div>
+    </section>
+
+    <!-- SỞ THÍCH -->
+    <section class="card">
+      <h2>Sở thích <span class="hint">(tuỳ chọn)</span></h2>
+
+      <p class="filter-label">Bữa ăn</p>
+      <div class="chip-group" id="mealChips" data-value="auto">
+        <button class="chip is-active" data-value="auto">Tự động</button>
+        <button class="chip" data-value="breakfast">Sáng</button>
+        <button class="chip" data-value="lunch">Trưa</button>
+        <button class="chip" data-value="dinner">Tối</button>
+        <button class="chip" data-value="latenight">Khuya</button>
+      </div>
+
+      <p class="filter-label">Ngân sách</p>
+      <div class="chip-group" id="priceChips" data-value="any">
+        <button class="chip is-active" data-value="any">Bất kỳ</button>
+        <button class="chip" data-value="re">Dưới 40k</button>
+        <button class="chip" data-value="vua">40k – 100k</button>
+        <button class="chip" data-value="sang">Trên 100k</button>
+      </div>
+
+      <p class="filter-label">Loại món <span class="hint">(chọn nhiều được)</span></p>
+      <div class="chip-group" id="categoryChips"></div>
+
+      <div class="chip-group">
+        <button class="chip chip-toggle" id="spicyChip" data-value="0">🌶️ Chỉ món cay</button>
+      </div>
+
+      <div id="favoritesRow" class="favorites-row" hidden>
+        <p class="filter-label">❤️ Món yêu thích</p>
+        <div class="chip-group" id="favoritesChips"></div>
+      </div>
+
+      <p id="blacklistNote" class="status-text link-note" hidden></p>
+    </section>
+
+    <!-- GỢI Ý MÓN -->
+    <section class="card">
+      <div id="pickCenter">
+        <button id="suggestBtn" class="btn-primary btn-wide btn-lg">🎲 Chọn món cho tôi</button>
+      </div>
+
+      <div id="foodResult" hidden>
+        <div id="foodCard" class="food-card">
+          <div class="food-image-wrap"></div>
+          <div class="food-actions-overlay">
+            <button id="favBtn" class="icon-btn" title="Thích món này">🤍</button>
+            <button id="banBtn" class="icon-btn" title="Không gợi ý món này nữa">🙅</button>
+          </div>
+        </div>
+        <p class="food-name" id="foodName"></p>
+        <div class="chip-row" id="foodTags"></div>
+        <p id="pickNote" class="pick-note" hidden></p>
+
+        <div id="preConfirm" class="button-row">
+          <button id="confirmBtn" class="btn-primary btn-wide">✅ Chọn món này</button>
+        </div>
+        <div id="postConfirm" class="button-row" hidden>
+          <button id="findNearbyBtn" class="btn-primary btn-wide"></button>
+        </div>
+        <button id="rerollBtn" class="link-btn reroll-link">🎲 Gợi ý món khác</button>
+      </div>
+    </section>
+
+    <!-- LỊCH SỬ -->
+    <section id="historySection" class="card" hidden>
+      <h2>Lịch sử món ăn</h2>
+      <ul id="historyList" class="history-list"></ul>
+    </section>
+
+    <!-- QUÁN GẦN BẠN -->
+    <section id="resultsSection" class="card" hidden>
+      <div class="results-header">
+        <h2 id="resultsTitle">Quán gần bạn</h2>
+        <div class="view-toggle" id="viewToggle">
+          <button class="view-btn is-active" data-view="list">Danh sách</button>
+          <button class="view-btn" data-view="map">Bản đồ</button>
+        </div>
+      </div>
+      <p id="resultsStatus" class="status-text"></p>
+      <ul id="resultsList" class="results-list"></ul>
+      <div id="mapView" class="map-view" hidden></div>
+
+      <div id="fallbackWrap" hidden>
+        <button id="showAllBtn" class="link-btn">Xem tất cả quán ăn gần đây (chưa lọc theo món) →</button>
+      </div>
+      <ul id="fallbackList" class="results-list"></ul>
+
+      <p class="rating-note">⭐ Xếp hạng &amp; đánh giá đầy đủ có thể xem trên Google Maps khi bấm "Chỉ đường".</p>
+    </section>
+
+    <footer class="app-footer">
+      <p>Dữ liệu địa điểm từ OpenStreetMap · ảnh từ Wikipedia · danh sách hành chính từ provinces.open-api.vn — miễn phí, không cần API key.</p>
+    </footer>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script src="app.js?v=4"></script>
+</body>
+</html>
