@@ -1169,6 +1169,13 @@ function renderFoodCard(food, note) {
     wrap.innerHTML = `<img src="${url}" alt="${displayFoodName(food)}" loading="lazy" />`;
   });
 
+  // Ép trình duyệt phát lại animation "cardPop" mỗi lần đổi món (kể cả khi thẻ đã
+  // hiện sẵn từ trước, vd bấm "Gợi ý món khác") — remove rồi add suông sẽ bị trình
+  // duyệt gộp thành no-op, phải đọc offsetWidth ở giữa để ép reflow trước khi add lại.
+  el.foodCard.classList.remove("is-revealing");
+  void el.foodCard.offsetWidth;
+  el.foodCard.classList.add("is-revealing");
+
   updateBottomBar();
 }
 

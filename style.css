@@ -72,6 +72,44 @@
   }
 }
 
+/* Cảm giác "app thật" khi chạm: mọi nút bấm hơi lún xuống lúc nhấn. Cố tình dùng
+   selector element thuần (button, không phải .class) để specificity THẤP hơn mọi
+   class cụ thể như .chip/.mode-btn — nếu không, rule chung này sẽ đè mất hẳn
+   transition border-color/background/color riêng của .chip thay vì cộng thêm vào
+   (transition là shorthand, "thắng" là thắng toàn bộ chứ không gộp từng vế). Nút
+   :disabled trình duyệt vốn không bao giờ khớp :active nên không cần loại trừ riêng. */
+button {
+  transition: transform 0.12s ease;
+}
+button:active {
+  transform: scale(0.96);
+}
+
+/* Các khối chỉ ẩn/hiện qua thuộc tính [hidden] (không phải đổi nội dung liên tục)
+   tự nhiên phát lại animation mỗi lần rời display:none -> hiện, không cần JS. */
+#dishListPanel,
+#favoritesRow,
+#historySection,
+#resultsSection,
+#foodResult {
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes cardPop {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.food-card.is-revealing {
+  animation: cardPop 0.28s ease;
+}
+
 /* Bắt buộc [hidden] luôn thắng, kể cả khi 1 class khác trên cùng phần tử có set
    display (vd .sheet-backdrop, .location-chip đều dùng display:flex) — nếu không có
    dòng này, các phần tử "hidden" bằng JS vẫn hiện ra do class ghi đè display. */
@@ -218,7 +256,7 @@ body {
   font-size: 0.88rem;
   font-family: inherit;
   cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.12s ease;
 }
 
 .mode-btn:hover {
@@ -367,7 +405,7 @@ select {
   padding: 8px 14px;
   border-radius: 999px;
   cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease, transform 0.12s ease;
 }
 
 .chip:hover {
