@@ -321,6 +321,18 @@ select {
   color: var(--primary-dark);
 }
 
+.chip:disabled,
+.chip.chip-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.chip:disabled:hover,
+.chip.chip-disabled:hover {
+  border-color: var(--border);
+}
+
 .chip-toggle.is-active {
   background: var(--primary);
   color: #fff;

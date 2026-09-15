@@ -577,11 +577,58 @@ function renderCategoryChips() {
       btn.classList.toggle("is-active");
       if (btn.classList.contains("is-active")) state.categories.add(btn.dataset.value);
       else state.categories.delete(btn.dataset.value);
+      updateFilterFeasibility();
       saveSession();
     });
   });
 }
 renderCategoryChips();
+
+/* Pool sau khi áp Loại món + Cay (2 bộ lọc "chủ động" — xem pickFood) — dùng để biết
+   trước lựa chọn Bữa ăn/Ngân sách nào là bất khả thi, thay vì để chọn xong mới báo. */
+function getHardPool() {
+  const blacklist = loadJSON(BLACKLIST_KEY, []);
+  let pool = FOODS.filter((f) => !blacklist.includes(f.name));
+  if (state.categories.size > 0) {
+    const withCat = pool.filter((f) => state.categories.has(f.category));
+    if (withCat.length > 0) pool = withCat;
+  }
+  if (state.spicyOnly) {
+    const withSpicy = pool.filter((f) => f.spicy);
+    if (withSpicy.length > 0) pool = withSpicy;
+  }
+  return pool;
+}
+
+/* Làm mờ + khoá trước các lựa chọn Bữa ăn/Ngân sách không có món nào khớp với Loại
+   món/Cay hiện tại — vd chọn "Nướng/BBQ" thì "Trên 100k" nên bị khoá luôn (không có
+   món nướng nào giá đó) thay vì cho chọn xong mới báo "đã bỏ bộ lọc". Nếu lựa chọn
+   đang active bị vô hiệu sau khi đổi Loại món/Cay, tự trả về mặc định "Bất kỳ/Tự động". */
+function updateFilterFeasibility() {
+  const hardPool = getHardPool();
+
+  el.mealChips.querySelectorAll(".chip").forEach((btn) => {
+    const value = btn.dataset.value;
+    const feasible = value === "auto" || hardPool.some((f) => f.meal.includes(value));
+    btn.disabled = !feasible;
+    btn.classList.toggle("chip-disabled", !feasible);
+  });
+  if (state.meal !== "auto" && !hardPool.some((f) => f.meal.includes(state.meal))) {
+    state.meal = "auto";
+    setActiveChip(el.mealChips, "auto");
+  }
+
+  el.priceChips.querySelectorAll(".chip").forEach((btn) => {
+    const value = btn.dataset.value;
+    const feasible = value === "any" || hardPool.some((f) => f.price === value);
+    btn.disabled = !feasible;
+    btn.classList.toggle("chip-disabled", !feasible);
+  });
+  if (state.price !== "any" && !hardPool.some((f) => f.price === state.price)) {
+    state.price = "any";
+    setActiveChip(el.priceChips, "any");
+  }
+}
 
 function wireSingleChipGroup(container, onChange) {
   container.querySelectorAll(".chip").forEach((btn) => {
@@ -618,6 +665,7 @@ wireSingleChipGroup(el.priceChips, (value) => {
 el.spicyChip.addEventListener("click", () => {
   state.spicyOnly = !state.spicyOnly;
   el.spicyChip.classList.toggle("is-active", state.spicyOnly);
+  updateFilterFeasibility();
   saveSession();
 });
 
@@ -894,6 +942,7 @@ function restoreSession() {
   setActiveChip(el.mealChips, state.meal);
   setActiveChip(el.priceChips, state.price);
   el.spicyChip.classList.toggle("is-active", state.spicyOnly);
+  updateFilterFeasibility();
 
   if (state.locationLabel !== null && state.lat !== null && state.lon !== null) {
     el.locationSummary.hidden = false;
@@ -1368,4 +1417,5 @@ el.langToggle.querySelectorAll(".lang-btn").forEach((btn) => {
 });
 
 restoreSession();
+updateFilterFeasibility();
 applyLanguage();
