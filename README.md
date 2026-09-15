@@ -13,6 +13,12 @@ cộng điểm nên dễ ra hơn — nhưng mọi món luôn có điểm nền �
 hẳn khỏi vòng random (khác với món đã ẩn/vừa ăn gần đây, vốn bị loại cứng ở bước lọc
 trước đó rồi).
 
+Giao diện theo kiểu "app di động": mở app là thấy ngay thẻ món (hero) + 1 nút CTA
+dính đáy, card Vị trí/Sở thích thu gọn thành 2 chip tóm tắt ở đầu trang — bấm vào mới
+mở sheet chi tiết. Chọn món xong không còn bước "Xác nhận" riêng — CTA đổi thẳng
+sang "Tìm quán gần đây", tự mở sheet Vị trí nếu chưa có toạ độ và tự tìm luôn ngay
+khi có toạ độ, không cần bấm thêm lần nào.
+
 **Bản đang chạy thật:** https://dangkimthanh15052005.github.io/today-eat-what/
 
 ## Chạy thử nhanh (local)
@@ -64,6 +70,12 @@ GitHub Pages tự rebuild sau khoảng 30-60 giây.
   khu vực nhỏ/tỉnh lẻ hoặc quán mới mở. Nếu thấy quá ít kết quả, có thể nâng cấp
   sau bằng cách thay bước gọi Overpass API trong `app.js` (hàm `fetchNearbyPlaces`)
   bằng Google Places API — đánh đổi là phải quản lý API key/quota.
+- **Overpass có thể bận (504)** — `fetchNearbyPlaces`/`fetchOverpassRaw` đã tự thử
+  lần lượt 2 mirror công khai (`overpass-api.de`, `overpass.kumi.systems`, mỗi host
+  timeout ~14s) trước khi báo lỗi thật; cache 6h + "stale-while-revalidate" tới 48h
+  (trả bản cũ ngay, fetch nền cập nhật lại) để giảm tần suất phải gọi API. Khi cả 2
+  host đều lỗi hoặc 0 quán trong bán kính, hiện khối lỗi/rỗng kèm nút "Thử lại" +
+  chip đổi bán kính nhanh, không mở tab Bản đồ trống.
 - Không có sao đánh giá, hay giờ mở cửa đáng tin cậy 100% — OSM không có dữ liệu
   rating; giờ mở chỉ hiện khi tag `opening_hours` của quán đủ đơn giản để đọc được,
   còn lại im lặng thay vì đoán bừa.
@@ -79,10 +91,15 @@ GitHub Pages tự rebuild sau khoảng 30-60 giây.
   service worker (vốn khó xoá hơn nhiều so với query string) lúc này rủi ro cao hơn
   lợi ích với quy mô 1 người dùng thử. Phần "cài vào màn hình chính" (manifest + icon)
   vẫn hoạt động bình thường, chỉ thiếu phần chạy được khi mất mạng.
-- Quán ăn "khớp món" chỉ dựa vào so khớp `food.keywords` với tên quán + tag
-  `cuisine` trên OSM — không có menu thật của từng quán nên không đảm bảo quán đó có
+- Quán ăn "khớp món" dựa vào 2 lớp: so khớp `food.keywords` với tên quán/tag
+  `cuisine` (substring), CỘNG THÊM so khớp tag `cuisine` với danh sách cuisine OSM
+  phổ biến theo từng category (`CATEGORY_CUISINE_TAGS` trong `app.js` — vd category
+  "Nhật" khớp thêm cuisine `japanese/sushi/ramen`) để bắt được cả quán chỉ khai báo
+  cuisine chung. Vẫn không có menu thật của từng quán nên không đảm bảo quán đó có
   bán đúng món, và không hiện sao đánh giá (OSM không có dữ liệu này, xem điểm phía
   trên) — cố tình không bịa số sao như một số app khác vẫn làm.
+- Bản đồ (Leaflet) chỉ tải khi bấm tab "Bản đồ" lần đầu (lazy-load CSS+JS từ CDN),
+  không tải sẵn ngay khi mở app — đa số lượt dùng chỉ xem Danh sách.
 - Không có tài khoản/đăng nhập, không lưu dữ liệu trên server — mọi thứ (yêu thích,
   món đã ẩn, lịch sử, vị trí + bộ lọc đang chọn, ngôn ngữ) lưu trong `localStorage`
   của trình duyệt, riêng theo từng thiết bị/trình duyệt.

@@ -4,16 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Hôm nay ăn gì?</title>
-<meta name="theme-color" content="#ea580c">
+<meta name="theme-color" content="#ea580c" id="themeColorMeta">
 <meta name="description" content="Gợi ý món ăn + tìm quán gần bạn">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="favicon-32.png" sizes="32x32">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ăn gì?">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<link rel="stylesheet" href="style.css?v=8">
+<link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
   <div class="app">
@@ -33,74 +35,20 @@
         <span class="brand-badge">🍜</span>
         <h1 data-i18n="appTitle">Hôm nay ăn gì?</h1>
       </div>
-      <p class="subtitle" data-i18n="subtitle">Gợi ý món ăn quanh bạn</p>
     </header>
 
-    <!-- VỊ TRÍ -->
-    <section class="card">
-      <h2 data-i18n="locationHeading">Vị trí</h2>
-
-      <div id="locationSummary" class="location-chip" hidden>
+    <!-- Thanh tóm tắt vị trí + sở thích — thu gọn, bấm để mở sheet chi tiết -->
+    <div class="filter-summary-bar">
+      <button id="locationSummaryBtn" class="summary-chip">
         <span id="locationSummaryText"></span>
-        <button id="changeLocationBtn" class="link-btn" data-i18n="changeBtn">Đổi</button>
-      </div>
+      </button>
+      <button id="prefsSummaryBtn" class="summary-chip">
+        <span id="prefsSummaryText"></span>
+      </button>
+    </div>
 
-      <div id="locationPicker">
-        <div class="location-modes">
-          <button id="useLocationBtn" class="mode-btn" data-i18n="useLocationBtn">📍 Dùng vị trí hiện tại</button>
-          <button id="pickRegionModeBtn" class="mode-btn" data-i18n="pickRegionBtn">🗺️ Chọn khu vực</button>
-        </div>
-        <p id="addressStatus" class="status-text"></p>
-      </div>
-
-      <div class="chip-group" id="radiusChips" data-value="1000">
-        <button class="chip" data-value="500">500 m</button>
-        <button class="chip is-active" data-value="1000">1 km</button>
-        <button class="chip" data-value="2000">2 km</button>
-        <button class="chip" data-value="5000">5 km</button>
-      </div>
-    </section>
-
-    <!-- SỞ THÍCH -->
-    <section class="card">
-      <h2><span data-i18n="preferencesHeading">Sở thích</span> <span class="hint" data-i18n="optionalHint">(tuỳ chọn)</span></h2>
-
-      <p class="filter-label" data-i18n="mealLabel">Bữa ăn</p>
-      <div class="chip-group" id="mealChips" data-value="auto">
-        <button class="chip is-active" data-value="auto" data-i18n="mealAuto">Tự động</button>
-        <button class="chip" data-value="breakfast" data-i18n="mealBreakfast">Sáng</button>
-        <button class="chip" data-value="lunch" data-i18n="mealLunch">Trưa</button>
-        <button class="chip" data-value="dinner" data-i18n="mealDinner">Tối</button>
-        <button class="chip" data-value="latenight" data-i18n="mealLatenight">Khuya</button>
-      </div>
-
-      <p class="filter-label" data-i18n="budgetLabel">Ngân sách</p>
-      <div class="chip-group" id="priceChips" data-value="any">
-        <button class="chip is-active" data-value="any" data-i18n="priceAny">Bất kỳ</button>
-        <button class="chip" data-value="le40" data-i18n="priceLe40">≤40k</button>
-        <button class="chip" data-value="b40_70" data-i18n="priceB4070">40k–70k</button>
-        <button class="chip" data-value="b70_100" data-i18n="priceB70100">70k–100k</button>
-        <button class="chip" data-value="gt100" data-i18n="priceGt100">&gt;100k</button>
-      </div>
-
-      <p class="filter-label"><span data-i18n="categoryLabel">Loại món</span> <span class="hint" data-i18n="categoryHint">(chọn nhiều được)</span></p>
-      <div class="chip-group" id="categoryChips"></div>
-
-      <div class="chip-group">
-        <button class="chip chip-toggle" id="spicyChip" data-value="0" data-i18n="spicyOnly">🌶️ Chỉ món cay</button>
-      </div>
-
-      <div id="favoritesRow" class="favorites-row" hidden>
-        <p class="filter-label" data-i18n="favoritesLabel">❤️ Món yêu thích</p>
-        <div class="chip-group" id="favoritesChips"></div>
-        <button id="randomFavBtn" class="link-btn" data-i18n="randomFavBtn">🎲 Random từ món yêu thích</button>
-      </div>
-
-      <p id="blacklistNote" class="status-text link-note" hidden></p>
-    </section>
-
-    <!-- GỢI Ý MÓN -->
-    <section class="card">
+    <!-- GỢI Ý MÓN — hero của màn hình, hiện ngay dưới fold đầu tiên -->
+    <section class="card hero-card">
       <div id="pickCenter">
         <p id="mealGreeting" class="meal-greeting" hidden></p>
         <p class="pick-hint" data-i18n="pickHint">Bấm nút bên dưới để bắt đầu</p>
@@ -157,6 +105,16 @@
       <ul id="resultsList" class="results-list"></ul>
       <div id="mapView" class="map-view" hidden></div>
 
+      <div id="resultsErrorBox" hidden>
+        <p id="resultsErrorText" class="status-text"></p>
+        <div class="chip-group" id="errorRadiusChips">
+          <button class="chip" data-value="1000">1 km</button>
+          <button class="chip" data-value="2000">2 km</button>
+          <button class="chip" data-value="5000">5 km</button>
+        </div>
+        <button id="retryNearbyBtn" class="link-btn" data-i18n="retryBtn">🔄 Thử lại</button>
+      </div>
+
       <div id="fallbackWrap" hidden>
         <button id="showAllBtn" class="link-btn" data-i18n="showAllBtn">Xem tất cả quán ăn gần đây (chưa lọc theo món) →</button>
       </div>
@@ -170,7 +128,32 @@
     </footer>
   </div>
 
-  <!-- Bottom sheet: chọn khu vực -->
+  <!-- Sheet: Vị trí -->
+  <div id="locationSheetBackdrop" class="sheet-backdrop" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <h3 data-i18n="locationHeading">Vị trí</h3>
+        <button id="closeLocationSheetBtn" class="icon-btn-plain" aria-label="Đóng" data-i18n-aria="close">✕</button>
+      </div>
+
+      <div class="location-modes">
+        <button id="useLocationBtn" class="mode-btn" data-i18n="useLocationBtn">📍 Dùng vị trí hiện tại</button>
+        <button id="pickRegionModeBtn" class="mode-btn" data-i18n="pickRegionBtn">🗺️ Chọn khu vực</button>
+      </div>
+      <p id="addressStatus" class="status-text"></p>
+
+      <p class="filter-label" data-i18n="radiusLabel">Bán kính</p>
+      <div class="chip-group" id="radiusChips" data-value="1000">
+        <button class="chip" data-value="500">500 m</button>
+        <button class="chip is-active" data-value="1000">1 km</button>
+        <button class="chip" data-value="2000">2 km</button>
+        <button class="chip" data-value="5000">5 km</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sheet: chọn khu vực (Tỉnh/Quận/Phường hoặc địa chỉ) -->
   <div id="regionSheetBackdrop" class="sheet-backdrop" hidden>
     <div id="regionSheet" class="sheet">
       <div class="sheet-handle"></div>
@@ -207,12 +190,56 @@
     </div>
   </div>
 
+  <!-- Sheet: Sở thích -->
+  <div id="prefsSheetBackdrop" class="sheet-backdrop" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <h3 data-i18n="preferencesHeading">Sở thích</h3>
+        <button id="closePrefsSheetBtn" class="icon-btn-plain" aria-label="Đóng" data-i18n-aria="close">✕</button>
+      </div>
+
+      <p class="filter-label" data-i18n="mealLabel">Bữa ăn</p>
+      <div class="chip-group" id="mealChips" data-value="auto">
+        <button class="chip is-active" data-value="auto" data-i18n="mealAuto">Tự động</button>
+        <button class="chip" data-value="breakfast" data-i18n="mealBreakfast">Sáng</button>
+        <button class="chip" data-value="lunch" data-i18n="mealLunch">Trưa</button>
+        <button class="chip" data-value="dinner" data-i18n="mealDinner">Tối</button>
+        <button class="chip" data-value="latenight" data-i18n="mealLatenight">Khuya</button>
+      </div>
+
+      <p class="filter-label" data-i18n="budgetLabel">Ngân sách</p>
+      <div class="chip-group" id="priceChips" data-value="any">
+        <button class="chip is-active" data-value="any" data-i18n="priceAny">Bất kỳ</button>
+        <button class="chip" data-value="le40" data-i18n="priceLe40">≤40k</button>
+        <button class="chip" data-value="b40_70" data-i18n="priceB4070">40k–70k</button>
+        <button class="chip" data-value="b70_100" data-i18n="priceB70100">70k–100k</button>
+        <button class="chip" data-value="gt100" data-i18n="priceGt100">&gt;100k</button>
+      </div>
+
+      <p class="filter-label"><span data-i18n="categoryLabel">Loại món</span> <span class="hint" data-i18n="categoryHint">(chọn nhiều được)</span></p>
+      <input id="categorySearch" type="text" class="category-search" data-i18n-placeholder="categorySearchPlaceholder" placeholder="Tìm loại món…" autocomplete="off">
+      <div class="chip-group" id="categoryChips"></div>
+
+      <div class="chip-group">
+        <button class="chip chip-toggle" id="spicyChip" data-value="0" data-i18n="spicyOnly">🌶️ Chỉ món cay</button>
+      </div>
+
+      <div id="favoritesRow" class="favorites-row" hidden>
+        <p class="filter-label" data-i18n="favoritesLabel">❤️ Món yêu thích</p>
+        <div class="chip-group" id="favoritesChips"></div>
+        <button id="randomFavBtn" class="link-btn" data-i18n="randomFavBtn">🎲 Random từ món yêu thích</button>
+      </div>
+
+      <p id="blacklistNote" class="status-text link-note" hidden></p>
+    </div>
+  </div>
+
   <!-- Bottom CTA bar (dính đáy, 1 nút chính duy nhất theo trạng thái hiện tại) -->
   <div class="bottom-bar">
     <button id="bottomBarBtn" class="btn-primary btn-wide btn-lg">🎲 Chọn món cho tôi</button>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-  <script src="app.js?v=12"></script>
+  <script src="app.js?v=13"></script>
 </body>
 </html>

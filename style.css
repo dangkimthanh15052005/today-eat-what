@@ -202,6 +202,41 @@ body {
   letter-spacing: 0.01em;
 }
 
+/* Thanh tóm tắt Vị trí + Sở thích — thay cho 2 card form chiếm hết first fold
+   trước đây; bấm để mở sheet chi tiết, thẻ món (hero) giờ hiện ngay sau thanh này. */
+.filter-summary-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.summary-chip {
+  flex: 1 1 50%;
+  min-width: 0;
+  min-height: 44px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  text-align: left;
+  box-shadow: var(--shadow);
+}
+
+.summary-chip span {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.category-search {
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
 /* Card */
 .card {
   background: var(--card-bg);
@@ -210,6 +245,10 @@ body {
   padding: 20px;
   margin-bottom: 16px;
   box-shadow: var(--shadow);
+}
+
+.hero-card {
+  margin-top: 0;
 }
 
 .card h2 {
@@ -226,18 +265,6 @@ body {
 }
 
 /* Location */
-.location-chip {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--primary-soft);
-  border-radius: var(--radius-sm);
-  padding: 10px 14px;
-  font-size: 0.88rem;
-  font-weight: 600;
-  margin-bottom: 14px;
-}
-
 .location-modes {
   display: flex;
   gap: 8px;
@@ -247,6 +274,7 @@ body {
 .mode-btn {
   flex: 1;
   min-width: 150px;
+  min-height: 44px;
   padding: 12px 10px;
   border-radius: var(--radius-sm);
   border: 1.5px solid var(--border);
@@ -403,6 +431,9 @@ select {
   font-size: 0.84rem;
   font-weight: 600;
   padding: 8px 14px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
   border-radius: 999px;
   cursor: pointer;
   transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease, transform 0.12s ease;
@@ -452,6 +483,7 @@ button {
   border: none;
   border-radius: var(--radius-sm);
   padding: 13px 16px;
+  min-height: 44px;
   font-size: 0.95rem;
   font-weight: 700;
 }
@@ -508,8 +540,10 @@ button {
 .dish-list {
   list-style: none;
   margin: 12px 0 0;
-  padding: 0;
-  max-height: 360px;
+  padding: 0 0 8px;
+  /* Tính theo viewport (trừ khoảng header + bottom-bar ước lượng) thay vì 1 số px
+   cố định — 184 món có thể ra danh sách rất dài trên màn hình nhỏ. */
+  max-height: min(55vh, 420px);
   overflow-y: auto;
 }
 
@@ -643,8 +677,8 @@ button {
 }
 
 .icon-btn {
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   border-radius: 999px;
   border: none;
   background: rgba(255, 255, 255, 0.92);
@@ -937,6 +971,15 @@ button {
 #fallbackWrap {
   margin-top: 14px;
   text-align: center;
+}
+
+#resultsErrorBox {
+  margin-top: 8px;
+  text-align: center;
+}
+
+#resultsErrorBox .chip-group {
+  justify-content: center;
 }
 
 .spinner {
