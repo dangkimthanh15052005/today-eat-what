@@ -134,6 +134,8 @@ function buildSandbox() {
     extract("function saveJSON("),
     extract("function getEffectiveMealTime("),
     extract("function pickFood("),
+    extract("function weightedPick("),
+    extract("function currentFoodMatchesFilters("),
     asVar(extract("const DAY_MAP =")),
     extract("function parseOpeningHours(")
   ].join("\n\n");
@@ -257,6 +259,45 @@ test("FOODS: mọi món đều có nameEn/minPrice/maxPrice/category/tags hợp 
   const dupes = names.filter((n, i) => names.indexOf(n) !== i);
   assert.strictEqual(dupes.length, 0, `Có tên món bị trùng: ${dupes.join(", ")}`);
   assert.ok(sb.FOODS.length >= 100, `Cần tối thiểu 100 món theo yêu cầu, hiện có ${sb.FOODS.length}`);
+});
+
+test("currentFoodMatchesFilters: phát hiện đúng lúc món đang hiện không còn khớp bộ lọc vừa đổi (bug: đổi Loại món không tự gợi ý lại)", () => {
+  const sb = buildSandbox();
+  const ga = sb.FOODS.find((f) => f.category === "ga");
+  const nuong = sb.FOODS.find((f) => f.category === "nuong");
+  sb.state.currentFood = ga;
+
+  // Chưa chọn Loại món nào -> luôn khớp
+  assert.strictEqual(sb.currentFoodMatchesFilters(), true);
+
+  // Chọn đúng category của món đang hiện -> vẫn khớp
+  sb.state.categories.add(ga.category);
+  assert.strictEqual(sb.currentFoodMatchesFilters(), true);
+
+  // Đổi sang category khác -> không còn khớp, phải trigger random lại
+  sb.state.categories.clear();
+  sb.state.categories.add(nuong.category);
+  assert.strictEqual(sb.currentFoodMatchesFilters(), false);
+
+  // Không có món nào đang hiện (chưa random lần nào) -> coi như khớp, không tự kích hoạt random
+  sb.state.currentFood = null;
+  assert.strictEqual(sb.currentFoodMatchesFilters(), true);
+});
+
+test("weightedPick (random thông minh): món trùng category yêu thích được cộng điểm nên xuất hiện thường xuyên hơn món khác, nhưng không loại hẳn món nào", () => {
+  const sb = buildSandbox();
+  const favFood = sb.FOODS.find((f) => f.category === "com");
+  const otherFood = sb.FOODS.find((f) => f.category === "nuoc");
+  sb.localStorage.setItem(sb.FAVORITES_KEY, JSON.stringify([favFood.name]));
+
+  const candidates = [favFood, otherFood];
+  const counts = { [favFood.name]: 0, [otherFood.name]: 0 };
+  for (let i = 0; i < 500; i++) {
+    const picked = sb.weightedPick(candidates, "lunch");
+    counts[picked.name]++;
+  }
+  assert.ok(counts[favFood.name] > counts[otherFood.name], `Món cùng category yêu thích (${favFood.name}: ${counts[favFood.name]}) phải ra thường xuyên hơn món còn lại (${otherFood.name}: ${counts[otherFood.name]})`);
+  assert.ok(counts[otherFood.name] > 0, "Món không phải yêu thích vẫn phải có cơ hội xuất hiện (base score = 1, không bị loại hẳn)");
 });
 
 test("CATEGORY_LABELS: mọi category dùng trong FOODS đều có nhãn hiển thị (vi + en)", () => {

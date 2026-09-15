@@ -1,10 +1,17 @@
 # Hôm nay ăn gì? / What to Eat Today?
 
 Web app: gợi ý món ăn theo giờ/khẩu vị, sau đó tìm quán ăn gần một địa chỉ nhập vào
-(hoặc vị trí hiện tại). Song ngữ Việt/Anh (nút VI/EN ở đầu trang). Không cần đăng ký
-API key nào — toàn bộ dữ liệu bản đồ/địa điểm lấy miễn phí từ OpenStreetMap
-(Nominatim để tìm địa chỉ, Overpass API để tìm quán ăn gần đó), ảnh món ăn từ
-Wikipedia/Wikimedia Commons, danh sách hành chính từ provinces.open-api.vn.
+(hoặc vị trí hiện tại). Song ngữ Việt/Anh (nút VI/EN ở đầu trang), có chế độ
+Sáng/Tối/Hệ thống (nút ☀️/🌙/⚙️ cạnh VI/EN). Không cần đăng ký API key nào — toàn bộ
+dữ liệu bản đồ/địa điểm lấy miễn phí từ OpenStreetMap (Nominatim để tìm địa chỉ,
+Overpass API để tìm quán ăn gần đó), ảnh món ăn từ Wikipedia/Wikimedia Commons, danh
+sách hành chính từ provinces.open-api.vn.
+
+Random món dùng "random có gu" nhẹ (`weightedPick` trong `app.js`): món trùng
+category/chính món đã yêu thích, hoặc khớp đúng ngân sách + bữa ăn đang chọn, được
+cộng điểm nên dễ ra hơn — nhưng mọi món luôn có điểm nền ≥1 nên không món nào bị loại
+hẳn khỏi vòng random (khác với món đã ẩn/vừa ăn gần đây, vốn bị loại cứng ở bước lọc
+trước đó rồi).
 
 **Bản đang chạy thật:** https://dangkimthanh15052005.github.io/today-eat-what/
 
@@ -66,6 +73,16 @@ GitHub Pages tự rebuild sau khoảng 30-60 giây.
   (OSM không có dữ liệu giá theo từng quán).
 - Tên Tỉnh/Quận/Phường trong phần chọn khu vực chỉ có tiếng Việt (nguồn dữ liệu
   provinces.open-api.vn chưa có bản tiếng Anh) — kể cả khi bật chế độ EN.
+- **Không cache offline (chưa có service worker)**: đã cân nhắc thêm PWA offline
+  caching nhưng cố tình bỏ, vì cơ chế cache-busting bằng query string (`?v=N`) đang
+  dùng đã từng gây 1 sự cố thật ("sửa xong mà không thấy đổi") — thêm 1 lớp cache của
+  service worker (vốn khó xoá hơn nhiều so với query string) lúc này rủi ro cao hơn
+  lợi ích với quy mô 1 người dùng thử. Phần "cài vào màn hình chính" (manifest + icon)
+  vẫn hoạt động bình thường, chỉ thiếu phần chạy được khi mất mạng.
+- Quán ăn "khớp món" chỉ dựa vào so khớp `food.keywords` với tên quán + tag
+  `cuisine` trên OSM — không có menu thật của từng quán nên không đảm bảo quán đó có
+  bán đúng món, và không hiện sao đánh giá (OSM không có dữ liệu này, xem điểm phía
+  trên) — cố tình không bịa số sao như một số app khác vẫn làm.
 - Không có tài khoản/đăng nhập, không lưu dữ liệu trên server — mọi thứ (yêu thích,
   món đã ẩn, lịch sử, vị trí + bộ lọc đang chọn, ngôn ngữ) lưu trong `localStorage`
   của trình duyệt, riêng theo từng thiết bị/trình duyệt.

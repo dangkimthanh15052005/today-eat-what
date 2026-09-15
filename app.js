@@ -357,6 +357,10 @@ const STRINGS = {
     spicyTag: "🌶️ Cay",
     favoritesLabel: "❤️ Món yêu thích",
     pickHint: "Bấm nút bên dưới để bắt đầu",
+    greetBreakfast: "☀️ Đến giờ ăn sáng rồi!",
+    greetLunch: "🍚 Đến giờ ăn trưa rồi!",
+    greetDinner: "🌙 Đến giờ ăn tối rồi!",
+    greetLatenight: "🌃 Đói bụng khuya à?",
     rerollBtn: "🎲 Gợi ý món khác",
     historyHeading: "Lịch sử món ăn",
     resultsHeading: "Quán gần bạn",
@@ -437,6 +441,10 @@ const STRINGS = {
     spicyTag: "🌶️ Spicy",
     favoritesLabel: "❤️ Your favorites",
     pickHint: "Tap the button below to get started",
+    greetBreakfast: "☀️ Time for breakfast!",
+    greetLunch: "🍚 Time for lunch!",
+    greetDinner: "🌙 Time for dinner!",
+    greetLatenight: "🌃 Late-night cravings?",
     rerollBtn: "🎲 Suggest another",
     historyHeading: "Food history",
     resultsHeading: "Places near you",
@@ -587,12 +595,14 @@ function applyLanguage() {
   updateBottomBar();
   updateLocationSummary();
   refreshFoodCardText();
+  updateMealGreeting();
   el.toggleListBtn.textContent = el.dishListPanel.hidden ? t("browseListBtn") : t("hideListBtn");
   if (!el.dishListPanel.hidden) renderDishList();
 }
 
 const el = {
   langToggle: document.getElementById("langToggle"),
+  themeToggle: document.getElementById("themeToggle"),
   addressInput: document.getElementById("addressInput"),
   useLocationBtn: document.getElementById("useLocationBtn"),
   pickRegionModeBtn: document.getElementById("pickRegionModeBtn"),
@@ -624,6 +634,7 @@ const el = {
   dishList: document.getElementById("dishList"),
   blacklistNote: document.getElementById("blacklistNote"),
   pickCenter: document.getElementById("pickCenter"),
+  mealGreeting: document.getElementById("mealGreeting"),
   bottomBarBtn: document.getElementById("bottomBarBtn"),
   foodResult: document.getElementById("foodResult"),
   foodCard: document.getElementById("foodCard"),
@@ -774,6 +785,24 @@ function logHistory(name) {
 
 /* ---------- Category / chip wiring ---------- */
 
+/* Nếu món đang hiện (đã random/xác nhận/chọn từ danh sách...) không còn khớp bộ lọc
+   vừa đổi, tự động gợi ý lại — tránh tình huống đổi Loại món/Cay/Bữa/Ngân sách mà
+   món hiển thị + nút "Xem quán ... gần bạn" vẫn im lìm giữ nguyên món cũ không khớp,
+   khiến người dùng tưởng bộ lọc không có tác dụng (đã bị Crystal bắt gặp thực tế). */
+function currentFoodMatchesFilters() {
+  const food = state.currentFood;
+  if (!food) return true;
+  if (state.categories.size > 0 && !state.categories.has(food.category)) return false;
+  if (state.spicyOnly && !food.spicy) return false;
+  if (state.meal !== "auto" && !food.meal.includes(state.meal)) return false;
+  if (state.price !== "any" && !matchesBudget(food, state.price)) return false;
+  return true;
+}
+
+function refreshFoodIfFiltersChanged() {
+  if (!currentFoodMatchesFilters()) showThinkingThenPick();
+}
+
 function renderCategoryChips() {
   el.categoryChips.innerHTML = Object.entries(CATEGORY_LABELS[state.lang])
     .map(([key, label]) => `<button class="chip${state.categories.has(key) ? " is-active" : ""}" data-value="${key}">${label}</button>`)
@@ -785,6 +814,7 @@ function renderCategoryChips() {
       else state.categories.delete(btn.dataset.value);
       updateFilterFeasibility();
       saveSession();
+      refreshFoodIfFiltersChanged();
     });
   });
 }
@@ -923,11 +953,14 @@ wireSingleChipGroup(el.radiusChips, (value) => {
 wireSingleChipGroup(el.mealChips, (value) => {
   state.meal = value;
   saveSession();
+  updateMealGreeting();
+  refreshFoodIfFiltersChanged();
 });
 
 wireSingleChipGroup(el.priceChips, (value) => {
   state.price = value;
   saveSession();
+  refreshFoodIfFiltersChanged();
 });
 
 el.spicyChip.addEventListener("click", () => {
@@ -935,6 +968,7 @@ el.spicyChip.addEventListener("click", () => {
   el.spicyChip.classList.toggle("is-active", state.spicyOnly);
   updateFilterFeasibility();
   saveSession();
+  refreshFoodIfFiltersChanged();
 });
 
 /* ---------- Food picking ---------- */
@@ -946,6 +980,19 @@ function getEffectiveMealTime() {
   if (hour >= 10 && hour < 14) return "lunch";
   if (hour >= 17 && hour < 22) return "dinner";
   return "latenight";
+}
+
+/* Chỉ mang tính gợi ý theo giờ thực tế trên màn hình chờ — KHÔNG tự khoá chip Bữa ăn,
+   người dùng vẫn đổi bữa khác bình thường (đúng yêu cầu "không tự động khóa lựa chọn"). */
+function updateMealGreeting() {
+  if (!el.mealGreeting) return;
+  if (state.meal !== "auto") {
+    el.mealGreeting.hidden = true;
+    return;
+  }
+  const key = "greet" + getEffectiveMealTime().charAt(0).toUpperCase() + getEffectiveMealTime().slice(1);
+  el.mealGreeting.textContent = t(key);
+  el.mealGreeting.hidden = false;
 }
 
 function pickFood() {
@@ -1009,10 +1056,36 @@ function pickFood() {
   const fresh = candidates.filter((f) => !recentlyEaten.has(f.name));
   const finalPool = fresh.length > 0 ? fresh : candidates;
 
-  const chosen = finalPool[Math.floor(Math.random() * finalPool.length)];
+  const chosen = weightedPick(finalPool, meal);
   state.recentShown.push(chosen.name);
   if (state.recentShown.length > 5) state.recentShown.shift();
   return { food: chosen, note: notes.length ? notes.join("; ") : null };
+}
+
+/* Random có "gu" nhẹ thay vì đều tăm tắp: món đã dính category yêu thích/chính món
+   yêu thích/khớp đúng ngân sách+bữa hiện tại được cộng điểm để dễ ra hơn — nhưng
+   base score = 1 cho mọi món nên không món nào bị loại hẳn (khác blacklist/eaten-
+   recently vốn đã loại cứng ở bước trên rồi, không cần trừ điểm lặp lại ở đây nữa). */
+function weightedPick(candidates, meal) {
+  const favorites = loadJSON(FAVORITES_KEY, []);
+  const favoriteCategories = new Set(FOODS.filter((f) => favorites.includes(f.name)).map((f) => f.category));
+
+  const weights = candidates.map((f) => {
+    let score = 1;
+    if (favoriteCategories.has(f.category)) score += 3;
+    if (favorites.includes(f.name)) score += 2;
+    if (state.price !== "any" && matchesBudget(f, state.price)) score += 3;
+    if (f.meal.includes(meal)) score += 2;
+    return score;
+  });
+
+  const total = weights.reduce((a, b) => a + b, 0);
+  let r = Math.random() * total;
+  for (let i = 0; i < candidates.length; i++) {
+    r -= weights[i];
+    if (r <= 0) return candidates[i];
+  }
+  return candidates[candidates.length - 1];
 }
 
 /* ---------- Food image ---------- */
@@ -1689,6 +1762,30 @@ el.langToggle.querySelectorAll(".lang-btn").forEach((btn) => {
   });
 });
 
+/* ---------- Theme (Sáng/Tối/Hệ thống) ---------- */
+
+const THEME_KEY = "hnag_theme_v1";
+
+function applyTheme(theme) {
+  if (theme === "system") {
+    document.documentElement.removeAttribute("data-theme");
+  } else {
+    document.documentElement.setAttribute("data-theme", theme);
+  }
+  el.themeToggle.querySelectorAll(".lang-btn").forEach((b) => b.classList.toggle("is-active", b.dataset.theme === theme));
+}
+
+el.themeToggle.querySelectorAll(".lang-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const theme = btn.dataset.theme;
+    saveJSON(THEME_KEY, theme);
+    applyTheme(theme);
+  });
+});
+
+applyTheme(loadJSON(THEME_KEY, "system"));
+
 restoreSession();
 updateFilterFeasibility();
 applyLanguage();
+updateMealGreeting();
