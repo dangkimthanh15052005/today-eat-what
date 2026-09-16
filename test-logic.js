@@ -235,6 +235,23 @@ test("pickFood: khi 1 Loại món chỉ có đúng 1 món hợp bữa hiện t�
   assert.ok(seen.size > 1, `Chỉ ra đúng 1 món (${[...seen].join(", ")}) suốt 30 lần random — đúng bug đã báo, phải nới bữa ăn để có nhiều lựa chọn hơn`);
 });
 
+test("tf(filterMealTooNarrow/filterMealEmpty): khi Bữa ăn để Tự động phải nói 'hiện đang là', KHÔNG được nói như thể người dùng đã tự chọn bữa đó (bug Crystal báo: để 'Tự động' mà ghi chú cứ nhắc 'bữa Sáng' làm tưởng mình lỡ chọn)", () => {
+  const sb = buildSandbox();
+
+  // Lưu ý: "nhóm đã chọn" (nhắc tới Loại món, vd "Nhật") là hợp lệ ở CẢ 2 trường
+  // hợp vì Loại món luôn do người dùng bấm chọn thật — điểm khác biệt cần kiểm là
+  // riêng phần nói về BỮA ĂN có bị gắn nhầm "bạn đã chọn" hay không.
+  const autoNote = sb.tf("filterMealTooNarrow", "Sáng", true);
+  assert.ok(!autoNote.includes("bạn đã chọn"), `Bữa "Tự động" (isAuto=true) không được nói bữa ăn là "bạn đã chọn": "${autoNote}"`);
+  assert.ok(autoNote.includes("hiện đang là"), `Bữa "Tự động" phải nói rõ "hiện đang là": "${autoNote}"`);
+
+  const manualNote = sb.tf("filterMealTooNarrow", "Sáng", false);
+  assert.ok(manualNote.includes("bạn đã chọn"), `Bữa do người dùng tự bấm chọn (isAuto=false) thì nói rõ "bạn đã chọn" mới đúng: "${manualNote}"`);
+
+  const autoEmptyNote = sb.tf("filterMealEmpty", "Sáng", true);
+  assert.ok(!autoEmptyNote.includes("bạn đã chọn") && autoEmptyNote.includes("hiện đang là"), `filterMealEmpty cũng phải theo đúng quy tắc isAuto: "${autoEmptyNote}"`);
+});
+
 test("pickFood: khi Loại món đã chọn không còn món nào (bị ẩn hết), tự bỏ bộ lọc và báo lý do", () => {
   const sb = buildSandbox();
   sb.state.categories.add("nuong");
