@@ -136,6 +136,8 @@ function buildSandbox() {
     extract("function pickFood("),
     extract("function weightedPick("),
     extract("function currentFoodMatchesFilters("),
+    asVar(extract("const CATEGORY_CUISINE_TAGS = {")),
+    extract("function matchesCuisineTag("),
     asVar(extract("const DAY_MAP =")),
     extract("function parseOpeningHours(")
   ].join("\n\n");
@@ -307,4 +309,23 @@ test("CATEGORY_LABELS: mọi category dùng trong FOODS đều có nhãn hiển 
   const missingEn = [...usedCats].filter((c) => !sb.CATEGORY_LABELS.en[c]);
   assert.strictEqual(missingVi.length, 0, `Category dùng trong FOODS nhưng thiếu nhãn vi: ${missingVi.join(", ")}`);
   assert.strictEqual(missingEn.length, 0, `Category dùng trong FOODS nhưng thiếu nhãn en: ${missingEn.join(", ")}`);
+});
+
+test("matchesCuisineTag: khớp quán theo tag cuisine chung của category, kể cả khi món hiếm không có tên/keyword trùng tên quán (bug Crystal báo: 'Cơm lươn nướng' không ra quán nào dù khu vực có quán Nhật)", () => {
+  const sb = buildSandbox();
+  // Món hiếm (category "nhat"), quán Nhật chỉ ghi cuisine=japanese chung chung,
+  // không có "unagi"/"eel" trong tên hay tag — trước đây sẽ KHÔNG khớp được.
+  assert.strictEqual(sb.matchesCuisineTag("japanese", "nhat"), true);
+  assert.strictEqual(sb.matchesCuisineTag("japanese;sushi", "nhat"), true);
+  // Sai category -> không khớp
+  assert.strictEqual(sb.matchesCuisineTag("korean", "nhat"), false);
+  // Không có tag cuisine, hoặc category không nằm trong map -> không khớp (không suy đoán bừa)
+  assert.strictEqual(sb.matchesCuisineTag("", "nhat"), false);
+  assert.strictEqual(sb.matchesCuisineTag("japanese", "khong-ton-tai"), false);
+
+  // Mọi category thật sự dùng trong FOODS nên có ít nhất 1 tag cuisine tương ứng,
+  // để món nào cũng có cơ hội khớp quán rộng hơn, không riêng vài category may mắn.
+  const usedCats = new Set(sb.FOODS.map((f) => f.category));
+  const missingCuisineMap = [...usedCats].filter((c) => !sb.CATEGORY_CUISINE_TAGS[c] || sb.CATEGORY_CUISINE_TAGS[c].length === 0);
+  assert.strictEqual(missingCuisineMap.length, 0, `Category dùng trong FOODS nhưng chưa có tag cuisine để khớp rộng: ${missingCuisineMap.join(", ")}`);
 });

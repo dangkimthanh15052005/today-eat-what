@@ -1506,6 +1506,41 @@ function amenityEmoji(amenity) {
   return { restaurant: "🍽️", fast_food: "🍔", cafe: "☕", food_court: "🍱" }[amenity] || "🍴";
 }
 
+/* Bug Crystal báo: quá nhiều món (đặc biệt món nước ngoài/ít phổ biến như "Cơm lươn
+   nướng" — keywords chỉ có "unagi don"/"com luon nuong") không tìm được quán nào dù
+   khu vực chắc chắn có quán Nhật, vì trước giờ chỉ so khớp keyword riêng của món với
+   TÊN quán + tag cuisine (substring) — không quán nào đặt tên/tag đúng như vậy. Bổ
+   sung so khớp CHÍNH XÁC tag cuisine OSM theo category món (vd category "nhat" khớp
+   luôn các quán cuisine=japanese/sushi/ramen dù tên quán không chứa "unagi"). */
+const CATEGORY_CUISINE_TAGS = {
+  nuoc: ["vietnamese", "noodle", "soup", "pho"],
+  com: ["vietnamese", "rice"],
+  banh: ["vietnamese"],
+  nuong: ["vietnamese", "barbecue", "bbq", "grill", "grilled"],
+  ga: ["chicken", "vietnamese"],
+  lau: ["vietnamese", "hot_pot", "hotpot"],
+  "hai-san": ["seafood", "vietnamese"],
+  "an-vat": ["vietnamese", "street_food"],
+  chien: ["fast_food"],
+  "fast-food": ["fast_food", "burger", "american"],
+  pizza: ["pizza", "italian"],
+  burger: ["burger", "fast_food", "american"],
+  nhat: ["japanese", "sushi", "ramen"],
+  han: ["korean"],
+  "trung-dai": ["chinese", "taiwanese", "dim_sum"],
+  healthy: ["salad", "vegetarian", "vegan"],
+  "trang-mieng": ["dessert", "ice_cream"],
+  "do-uong": ["coffee_shop", "tea", "bubble_tea", "cafe"],
+  "quoc-te": ["international"]
+};
+
+function matchesCuisineTag(cuisineRaw, category) {
+  const tagList = CATEGORY_CUISINE_TAGS[category];
+  if (!cuisineRaw || !tagList) return false;
+  const cuisines = cuisineRaw.toLowerCase().split(";").map((s) => s.trim());
+  return cuisines.some((c) => tagList.includes(c));
+}
+
 const DAY_MAP = { Mo: 1, Tu: 2, We: 3, Th: 4, Fr: 5, Sa: 6, Su: 0 };
 
 function parseOpeningHours(tag) {
@@ -1713,13 +1748,14 @@ async function findNearby() {
         const name = tags.name || t("unnamedPlace");
         const distance = haversineMeters(state.lat, state.lon, lat, lon);
         const haystack = normalizeVN(`${name} ${tags.cuisine || ""}`);
-        const matched = food.keywords.some((kw) => haystack.includes(normalizeVN(kw)));
+        const keywordMatched = food.keywords.some((kw) => haystack.includes(normalizeVN(kw)));
+        const cuisineMatched = matchesCuisineTag(tags.cuisine, food.category);
         return {
           name,
           lat,
           lon,
           distance,
-          matched,
+          matched: keywordMatched || cuisineMatched,
           address: tags["addr:street"] || "",
           icon: amenityEmoji(tags.amenity),
           open: parseOpeningHours(tags.opening_hours)
@@ -1747,12 +1783,17 @@ async function findNearby() {
         renderPlaceList(el.fallbackList, state.otherPlaces);
       }
     } else {
+      // 0 quán khớp món nhưng vẫn có quán khác gần đó — hiện luôn danh sách thay vì
+      // giấu sau nút "Xem tất cả" (nút đó chỉ còn ý nghĩa khi ĐÃ có kết quả khớp rồi
+      // và muốn xem thêm) — bớt 1 lần bấm thừa khi món hiếm không khớp được quán nào.
+      // fallbackShown=true ngay để tab Bản đồ (getVisiblePlaces) đồng bộ đúng với
+      // Danh sách, không lệch giữa 2 tab.
       el.resultsStatus.textContent = tf("noneMatched", displayFoodName(food), RADIUS_LABELS[state.radius]);
       if (otherPlaces.length > 0) {
-        state.hasFallback = true;
         state.otherPlaces = otherPlaces.slice(0, 25);
-        el.fallbackWrap.hidden = false;
+        state.fallbackShown = true;
         renderPlaceList(el.fallbackList, state.otherPlaces);
+        el.fallbackList.hidden = false;
       }
     }
   } catch (err) {

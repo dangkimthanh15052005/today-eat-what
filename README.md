@@ -79,10 +79,16 @@ GitHub Pages tự rebuild sau khoảng 30-60 giây.
   service worker (vốn khó xoá hơn nhiều so với query string) lúc này rủi ro cao hơn
   lợi ích với quy mô 1 người dùng thử. Phần "cài vào màn hình chính" (manifest + icon)
   vẫn hoạt động bình thường, chỉ thiếu phần chạy được khi mất mạng.
-- Quán ăn "khớp món" chỉ dựa vào so khớp `food.keywords` với tên quán + tag
-  `cuisine` trên OSM — không có menu thật của từng quán nên không đảm bảo quán đó có
-  bán đúng món, và không hiện sao đánh giá (OSM không có dữ liệu này, xem điểm phía
-  trên) — cố tình không bịa số sao như một số app khác vẫn làm.
+- Quán ăn "khớp món" dựa vào 2 lớp: so khớp `food.keywords` với tên quán/tag
+  `cuisine` (substring), CỘNG THÊM so khớp tag `cuisine` với danh sách cuisine OSM
+  phổ biến theo từng category (`CATEGORY_CUISINE_TAGS` trong `app.js`) — thêm lớp
+  này vì nhiều món (đặc biệt món nước ngoài/ít phổ biến như "Cơm lươn nướng") có
+  keyword riêng ("unagi don") mà gần như không quán nào đặt tên/gắn tag đúng y vậy,
+  trong khi quán vẫn có thể gắn cuisine chung (`japanese`) khớp được. Kể cả vậy vẫn
+  không có menu thật của từng quán nên không đảm bảo quán đó có bán đúng món, và
+  không hiện sao đánh giá (OSM không có dữ liệu này, xem điểm phía trên) — cố tình
+  không bịa số sao như một số app khác vẫn làm. 0 quán khớp nhưng còn quán khác gần
+  đó thì hiện luôn danh sách quán khác, không giấu sau nút "Xem tất cả" nữa.
 - Không có tài khoản/đăng nhập, không lưu dữ liệu trên server — mọi thứ (yêu thích,
   món đã ẩn, lịch sử, vị trí + bộ lọc đang chọn, ngôn ngữ) lưu trong `localStorage`
   của trình duyệt, riêng theo từng thiết bị/trình duyệt.
