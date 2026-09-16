@@ -64,6 +64,12 @@ GitHub Pages tự rebuild sau khoảng 30-60 giây.
   khu vực nhỏ/tỉnh lẻ hoặc quán mới mở. Nếu thấy quá ít kết quả, có thể nâng cấp
   sau bằng cách thay bước gọi Overpass API trong `app.js` (hàm `fetchNearbyPlaces`)
   bằng Google Places API — đánh đổi là phải quản lý API key/quota.
+- **Overpass có thể chập chờn (504/timeout)** — `fetchNearbyPlaces` tự thử lần
+  lượt 2 mirror công khai (`overpass-api.de`, `overpass.kumi.systems`, mỗi host
+  timeout ~14s) trước khi báo lỗi thật. Cache theo (toạ độ+bán kính) 6h, nhưng
+  **không bao giờ cache kết quả rỗng** — nếu không, 1 lần fetch đầu lỡ rỗng sẽ khiến
+  mọi món tìm sau tại vị trí đó đều báo "không tìm thấy quán" suốt 6 tiếng dù khu
+  vực thật ra có đầy quán (bug thật Crystal báo, đã tự "heal" cache cũ khi gặp lại).
 - Không có sao đánh giá, hay giờ mở cửa đáng tin cậy 100% — OSM không có dữ liệu
   rating; giờ mở chỉ hiện khi tag `opening_hours` của quán đủ đơn giản để đọc được,
   còn lại im lặng thay vì đoán bừa.

@@ -1609,14 +1609,62 @@ function parseOpeningHours(tag) {
 function readPlacesCache(key) {
   const raw = loadJSON(PLACES_CACHE_KEY, {});
   const entry = raw[key];
-  if (entry && Date.now() - entry.timestamp < PLACES_CACHE_TTL_MS) return entry.elements;
+  // entry.elements rỗng nghĩa là bản cache lỗi từ trước khi có fix này (đã lưu
+  // nhầm 1 lần) — coi như không có cache, để tự fetch lại thay vì tiếp tục kẹt.
+  if (entry && entry.elements && entry.elements.length > 0 && Date.now() - entry.timestamp < PLACES_CACHE_TTL_MS) {
+    return entry.elements;
+  }
   return null;
 }
 
+/* Bug thật Crystal báo: nhiều món khác nhau ở CÙNG 1 vị trí đều báo "không tìm
+   thấy quán" — vì cache theo key (toạ độ+bán kính), không phải theo món. Nếu LẦN
+   ĐẦU query Overpass tại vị trí đó lỡ trả về rỗng (Overpass chập chờn/timeout giữa
+   chừng vẫn trả HTTP 200 với 0 phần tử), cache giữ nguyên mảng rỗng đó suốt 6 tiếng
+   — mọi món tìm sau, dù thật ra khu vực có đầy quán, đều ăn phải cache rỗng này
+   (`if (cached)` coi mảng rỗng `[]` là truthy nên không fetch lại). Sửa: không lưu
+   cache khi kết quả rỗng, để lần tìm tiếp theo (món khác) có cơ hội fetch lại thật. */
 function writePlacesCache(key, elements) {
+  if (!elements || elements.length === 0) return;
   const raw = loadJSON(PLACES_CACHE_KEY, {});
   raw[key] = { timestamp: Date.now(), elements };
   saveJSON(PLACES_CACHE_KEY, raw);
+}
+
+/* Cũng để giảm khả năng dính response rỗng/lỗi ngay từ đầu: thử lần lượt 2 mirror
+   Overpass công khai (mỗi host có timeout riêng qua AbortController), chỉ thật sự
+   báo lỗi khi CẢ 2 đều fail — thay vì 1 host chập chờn là cả tính năng coi như hỏng. */
+const OVERPASS_HOSTS = [
+  "https://overpass-api.de/api/interpreter",
+  "https://overpass.kumi.systems/api/interpreter"
+];
+const OVERPASS_TIMEOUT_MS = 14000;
+
+async function fetchOverpassRaw(query) {
+  let lastErr = null;
+  for (const host of OVERPASS_HOSTS) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), OVERPASS_TIMEOUT_MS);
+    try {
+      const res = await fetch(host, {
+        method: "POST",
+        body: `data=${encodeURIComponent(query)}`,
+        signal: controller.signal
+      });
+      if (!res.ok) {
+        lastErr = new Error(`Overpass ${host} trả về HTTP ${res.status}`);
+        continue;
+      }
+      const data = await res.json();
+      return data.elements || [];
+    } catch (err) {
+      lastErr = err;
+      continue; // thử host tiếp theo (timeout/network error/HTTP lỗi đều rơi vào đây)
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  throw lastErr || new Error("Tất cả Overpass host đều lỗi");
 }
 
 async function fetchNearbyPlaces(lat, lon, radius) {
@@ -1625,13 +1673,7 @@ async function fetchNearbyPlaces(lat, lon, radius) {
   if (cached) return cached;
 
   const query = `[out:json][timeout:25];(node["amenity"~"restaurant|fast_food|cafe|food_court"](around:${radius},${lat},${lon});way["amenity"~"restaurant|fast_food|cafe|food_court"](around:${radius},${lat},${lon}););out center 100;`;
-  const res = await fetch("https://overpass-api.de/api/interpreter", {
-    method: "POST",
-    body: `data=${encodeURIComponent(query)}`
-  });
-  if (!res.ok) throw new Error("Overpass request failed");
-  const data = await res.json();
-  const elements = data.elements || [];
+  const elements = await fetchOverpassRaw(query);
   writePlacesCache(cacheKey, elements);
   return elements;
 }

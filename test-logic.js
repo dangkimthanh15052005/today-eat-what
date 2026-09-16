@@ -58,8 +58,9 @@ function extract(marker) {
     // const foo = {  /  const foo = [   -> đếm ngoặc bắt đầu từ chính ký tự cuối marker
     return scanBalanced(start, start + marker.length - 1);
   }
-  if (marker.trim().startsWith("function")) {
-    // function foo(...) {...} -> bỏ qua danh sách tham số, tìm dấu { đầu tiên rồi mới đếm
+  if (/^(async\s+)?function\b/.test(marker.trim())) {
+    // function foo(...) {...} / async function foo(...) {...} -> bỏ qua danh sách
+    // tham số, tìm dấu { đầu tiên rồi mới đếm (giữ nguyên "async" nếu marker có).
     let i = start;
     while (SRC[i] !== "{") i++;
     return scanBalanced(start, i);
@@ -94,7 +95,7 @@ function buildSandbox() {
       store[k] = String(v);
     }
   };
-  const sandbox = { localStorage, console };
+  const sandbox = { localStorage, console, AbortController, setTimeout, clearTimeout, fetch: undefined };
   vm.createContext(sandbox);
 
   // vm context: khai báo bằng `const`/`let` ở top-level KHÔNG gắn thành property của
@@ -138,6 +139,11 @@ function buildSandbox() {
     extract("function currentFoodMatchesFilters("),
     asVar(extract("const CATEGORY_CUISINE_TAGS = {")),
     extract("function matchesCuisineTag("),
+    extract("function readPlacesCache("),
+    extract("function writePlacesCache("),
+    asVar(extract("const OVERPASS_HOSTS = [")),
+    asVar(extract("const OVERPASS_TIMEOUT_MS =")),
+    extract("async function fetchOverpassRaw("),
     asVar(extract("const DAY_MAP =")),
     extract("function parseOpeningHours(")
   ].join("\n\n");
@@ -345,4 +351,36 @@ test("matchesCuisineTag: khớp quán theo tag cuisine chung của category, k�
   const usedCats = new Set(sb.FOODS.map((f) => f.category));
   const missingCuisineMap = [...usedCats].filter((c) => !sb.CATEGORY_CUISINE_TAGS[c] || sb.CATEGORY_CUISINE_TAGS[c].length === 0);
   assert.strictEqual(missingCuisineMap.length, 0, `Category dùng trong FOODS nhưng chưa có tag cuisine để khớp rộng: ${missingCuisineMap.join(", ")}`);
+});
+
+test("writePlacesCache: KHÔNG lưu cache khi Overpass trả về mảng rỗng (bug Crystal báo: nhiều món khác nhau ở cùng 1 vị trí đều báo 'không tìm thấy quán' — do 1 lần fetch đầu lỡ rỗng bị cache 6h, mọi món tìm sau đều ăn cache rỗng đó)", () => {
+  const sb = buildSandbox();
+  sb.writePlacesCache("10.776_106.700_5000", []);
+  assert.strictEqual(sb.readPlacesCache("10.776_106.700_5000"), null, "Không được cache mảng rỗng — phải để lần tìm sau (món khác) fetch lại thật");
+
+  sb.writePlacesCache("10.776_106.700_5000", [{ id: 1 }, { id: 2 }]);
+  const cached = sb.readPlacesCache("10.776_106.700_5000");
+  assert.strictEqual(cached.length, 2, "Kết quả thật (khác rỗng) vẫn phải cache bình thường");
+});
+
+test("fetchOverpassRaw: host đầu lỗi/timeout thì tự chuyển sang host tiếp theo, chỉ throw khi CẢ 2 đều lỗi", async () => {
+  const sb = buildSandbox();
+
+  let callLog = [];
+  sb.fetch = async (url) => {
+    callLog.push(url);
+    if (url.includes("overpass-api.de")) {
+      return { ok: false, status: 504, json: async () => ({}) };
+    }
+    return { ok: true, json: async () => ({ elements: [{ id: 1, lat: 10, lon: 106 }] }) };
+  };
+  const result = await sb.fetchOverpassRaw("fake-query");
+  assert.deepStrictEqual(result.map((e) => e.id), [1]);
+  assert.strictEqual(callLog.length, 2, "Phải thử đúng 2 host (host 1 fail rồi mới sang host 2), không dừng sớm hay gọi thừa");
+  assert.ok(callLog[0].includes("overpass-api.de") && callLog[1].includes("kumi.systems"), "Phải thử theo đúng thứ tự host đã khai báo");
+
+  // Cả 2 host đều lỗi -> phải throw thật (để hiện thông báo lỗi rõ ràng, không âm
+  // thầm trả rỗng khiến người dùng tưởng nhầm khu vực không có quán nào)
+  sb.fetch = async () => ({ ok: false, status: 500, json: async () => ({}) });
+  await assert.rejects(() => sb.fetchOverpassRaw("fake-query"));
 });
