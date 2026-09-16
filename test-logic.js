@@ -212,6 +212,23 @@ test("pickFood: không lặp lại 5 món vừa xem gần nhất khi còn lựa 
   }
 });
 
+test("pickFood: khi 1 Loại món chỉ có đúng 1 món hợp bữa hiện tại, tự mở rộng bữa khác để random không bị kẹt cứng 1 món (bug Crystal báo: chọn 'Nhật', bấm đổi món mãi vẫn ra Onigiri)", () => {
+  const sb = buildSandbox();
+  sb.state.categories.add("nhat");
+  sb.state.meal = "breakfast"; // trong FOODS thật, chỉ "Onigiri" thuộc "nhat" hợp Sáng
+
+  const onlyBreakfastDish = sb.FOODS.filter((f) => f.category === "nhat" && f.meal.includes("breakfast"));
+  assert.strictEqual(onlyBreakfastDish.length, 1, "Test này giả định đúng 1 món Nhật hợp bữa Sáng — nếu data đổi, cần xem lại giả định của test");
+
+  const seen = new Set();
+  for (let i = 0; i < 30; i++) {
+    const { food } = sb.pickFood();
+    assert.strictEqual(food.category, "nhat", "Vẫn phải tôn trọng Loại món đã chọn (Nhật) dù có nới bữa ăn");
+    seen.add(food.name);
+  }
+  assert.ok(seen.size > 1, `Chỉ ra đúng 1 món (${[...seen].join(", ")}) suốt 30 lần random — đúng bug đã báo, phải nới bữa ăn để có nhiều lựa chọn hơn`);
+});
+
 test("pickFood: khi Loại món đã chọn không còn món nào (bị ẩn hết), tự bỏ bộ lọc và báo lý do", () => {
   const sb = buildSandbox();
   sb.state.categories.add("nuong");

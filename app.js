@@ -495,6 +495,7 @@ const STRINGS_FN = {
     filterCategoryEmpty: () => "không còn món nào thuộc Loại món đã chọn (có thể do bạn đã ẩn hết) nên đã bỏ bộ lọc này",
     filterSpicyEmpty: () => 'không có món cay trong nhóm đã chọn nên đã bỏ "Chỉ món cay"',
     filterMealEmpty: (mealLabel) => `không có món hợp bữa "${mealLabel}" trong nhóm đã chọn nên đã bỏ bộ lọc bữa ăn`,
+    filterMealTooNarrow: (mealLabel) => `chỉ có đúng 1 món hợp bữa "${mealLabel}" trong nhóm đã chọn nên đã mở rộng thêm bữa khác để có nhiều lựa chọn xoay vòng hơn`,
     filterPriceRelaxMeal: (priceLabel) => `không có món ở mức "${priceLabel}" hợp bữa đã chọn nên đã bỏ bộ lọc bữa ăn để giữ đúng mức giá`,
     filterPriceEmpty: (priceLabel) => `không có món ở mức "${priceLabel}" trong nhóm đã chọn nên đã bỏ bộ lọc ngân sách`,
     pickNotePrefix: (note) => `ℹ️ ${note[0].toUpperCase()}${note.slice(1)}.`,
@@ -513,6 +514,7 @@ const STRINGS_FN = {
     filterCategoryEmpty: () => "nothing left in the category you picked (maybe you've hidden them all), so that filter was dropped",
     filterSpicyEmpty: () => 'no spicy dish in this group, so "Spicy only" was dropped',
     filterMealEmpty: (mealLabel) => `no dish fits "${mealLabel}" in this group, so the meal filter was dropped`,
+    filterMealTooNarrow: (mealLabel) => `only 1 dish fits "${mealLabel}" in this group, so other meals were included too for more variety`,
     filterPriceRelaxMeal: (priceLabel) => `no dish at "${priceLabel}" fits the chosen meal, so the meal filter was dropped to keep the right price`,
     filterPriceEmpty: (priceLabel) => `no dish at "${priceLabel}" in this group, so the budget filter was dropped`,
     pickNotePrefix: (note) => `ℹ️ ${note[0].toUpperCase()}${note.slice(1)}.`,
@@ -1027,6 +1029,14 @@ function pickFood() {
   if (pool.length === 0) {
     pool = hardPool;
     notes.push(tf("filterMealEmpty", MEAL_LABELS[state.lang][meal]));
+  } else if (pool.length === 1 && hardPool.length > 1) {
+    // Bug Crystal báo: chọn Loại món "Nhật" vào đúng giờ mà nhóm đó chỉ có 1 món hợp
+    // bữa hiện tại (vd chỉ Onigiri hợp Sáng) -> random/đổi món mãi vẫn ra đúng món
+    // đó vì pool chỉ có 1 phần tử (không rơi vào nhánh "rỗng" ở trên nên không được
+    // nới). Nới bữa ăn để có nhiều lựa chọn xoay vòng hơn — weightedPick vẫn cộng
+    // điểm ưu tiên món đúng bữa nên không mất hẳn tính hợp lý theo giờ.
+    pool = hardPool;
+    notes.push(tf("filterMealTooNarrow", MEAL_LABELS[state.lang][meal]));
   }
 
   if (state.price !== "any") {
